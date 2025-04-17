@@ -4,7 +4,7 @@ struct DeviceDetailView: View {
     let device: Device
     @EnvironmentObject private var deviceManager: DeviceManager
     @State private var deviceName: String
-    @State private var isEditing = false
+    @State private var showingRenameAlert = false
     
     init(device: Device) {
         self.device = device
@@ -14,46 +14,18 @@ struct DeviceDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Device name with edit button
-                HStack {
-                    if isEditing {
-                        TextField("Device Name", text: $deviceName, onCommit: {
-                            updateDeviceName()
-                        })
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .font(.title)
-                        
-                        Button(action: {
-                            updateDeviceName()
-                        }) {
-                            Text("Save")
-                        }
-                    } else {
-                        Text(device.name)
-                            .font(.title)
-                            .fontWeight(.bold)
-                        
-                        Button(action: {
-                            isEditing = true
-                        }) {
-                            Image(systemName: "pencil")
-                        }
-                    }
-                }
-                .padding()
-                
                 // Stopwatch
                 VStack {
-                    Text(formattedTime(device.totalTime()))
+                    Text(TimeUtils.formattedTime(device.totalTime()))
                         .font(.system(size: 60, weight: .bold, design: .monospaced))
-                        .foregroundColor(device.isRunning ? .green : .primary)
+                        .foregroundColor(device.isRunning ? .accentColor : .primary)
                     
                     Button(action: {
                         deviceManager.toggleTimer(for: device)
                     }) {
                         Text(device.isRunning ? "Stop" : "Start")
                             .frame(width: 100, height: 44)
-                            .background(device.isRunning ? Color.red : Color.green)
+                            .background(device.isRunning ? Color.red : Color.accentColor)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
@@ -64,7 +36,25 @@ struct DeviceDetailView: View {
                 StatisticsView(device: device)
             }
         }
-        .navigationTitle("Device Details")
+        .navigationTitle(device.name)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showingRenameAlert = true
+                }) {
+                    Image(systemName: "pencil")
+                }
+            }
+        }
+        .alert("Rename Device", isPresented: $showingRenameAlert) {
+            TextField("Device Name", text: $deviceName)
+            Button("Cancel", role: .cancel) {
+                deviceName = device.name
+            }
+            Button("Save") {
+                updateDeviceName()
+            }
+        }
     }
     
     private func updateDeviceName() {
@@ -73,51 +63,40 @@ struct DeviceDetailView: View {
             updatedDevice.name = deviceName
             deviceManager.updateDevice(updatedDevice)
         }
-        isEditing = false
     }
     
-    private func formattedTime(_ timeInterval: TimeInterval) -> String {
-        let hours = Int(timeInterval) / 3600
-        let minutes = Int(timeInterval) / 60 % 60
-        let seconds = Int(timeInterval) % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-    }
 }
 
 struct StatisticsView: View {
     let device: Device
+    @EnvironmentObject private var deviceManager: DeviceManager
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 15) {
             Text("Statistics")
                 .font(.headline)
-                .padding(.horizontal)
+                .foregroundColor(.secondary)
             
-            StatCard(title: "Today", value: formattedTime(device.totalTime()))
-            
-            StatCard(title: "This Week", value: formattedTime(device.totalTime(timeFrame: .week)))
-            
-            StatCard(title: "This Month", value: formattedTime(device.totalTime(timeFrame: .month)))
-            
-            StatCard(title: "Daily Average (Week)", value: formattedTime(device.averageTimePerDay(timeFrame: .week)))
-            
-            StatCard(title: "Daily Average (Month)", value: formattedTime(device.averageTimePerDay(timeFrame: .month)))
+            Divider()
+                
+            Group {
+                StatRow(title: "Today", value: TimeUtils.formattedTime(device.totalTime()))
+                StatRow(title: "This Week", value: TimeUtils.formattedTime(device.totalTime(timeFrame: .week)))
+                StatRow(title: "This Month", value: TimeUtils.formattedTime(device.totalTime(timeFrame: .month)))
+                Divider()
+                StatRow(title: "Daily Average (Week)", value: TimeUtils.formattedTime(device.averageTimePerDay(timeFrame: .week)))
+                StatRow(title: "Daily Average (Month)", value: TimeUtils.formattedTime(device.averageTimePerDay(timeFrame: .month)))
+            }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color(.systemBackground))
         .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .padding()
-    }
-    
-    private func formattedTime(_ timeInterval: TimeInterval) -> String {
-        let hours = Int(timeInterval) / 3600
-        let minutes = Int(timeInterval) / 60 % 60
-        let seconds = Int(timeInterval) % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
-struct StatCard: View {
+struct StatRow: View {
     let title: String
     let value: String
     
@@ -125,15 +104,13 @@ struct StatCard: View {
         HStack {
             Text(title)
                 .foregroundColor(.secondary)
+                .font(.system(.body, design: .rounded))
             Spacer()
             Text(value)
-                .fontWeight(.semibold)
+                .font(.system(.body, design: .monospaced))
+                .fontWeight(.medium)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
-        .padding(.horizontal)
+        .padding(.vertical, 4)
     }
 }
 

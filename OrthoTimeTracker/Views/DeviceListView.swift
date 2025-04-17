@@ -63,32 +63,27 @@ struct DeviceListView: View {
 
 struct DeviceRowView: View {
     let device: Device
-    @State private var currentTime: TimeInterval = 0
+    @EnvironmentObject private var deviceManager: DeviceManager
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 Text(device.name)
                     .font(.headline)
-                Text(formattedTime(device.totalTime()))
+                
+                // Using the currentTimestamp from DeviceManager ensures this updates every second
+                Text(TimeUtils.formattedTime(device.totalTime()))
                     .font(.subheadline)
-                    .foregroundColor(device.isRunning ? .green : .secondary)
+                    .foregroundColor(device.isRunning ? .accentColor : .secondary)
             }
             
             Spacer()
             
             if device.isRunning {
                 Image(systemName: "timer")
-                    .foregroundColor(.green)
+                    .foregroundColor(.accentColor)
             }
         }
-    }
-    
-    private func formattedTime(_ timeInterval: TimeInterval) -> String {
-        let hours = Int(timeInterval) / 3600
-        let minutes = Int(timeInterval) / 60 % 60
-        let seconds = Int(timeInterval) % 60
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 

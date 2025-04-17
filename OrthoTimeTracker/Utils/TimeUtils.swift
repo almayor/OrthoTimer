@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 class TimeUtils {
     static func formattedTime(_ timeInterval: TimeInterval) -> String {
@@ -6,6 +7,12 @@ class TimeUtils {
         let minutes = Int(timeInterval) / 60 % 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+    
+    static func formattedHoursMinutes(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        return String(format: "%d hr %d min", hours, minutes)
     }
     
     static func startOfDay(for date: Date) -> Date {
@@ -23,4 +30,6 @@ class TimeUtils {
         let components = calendar.dateComponents([.year, .month], from: date)
         return calendar.date(from: components) ?? date
     }
+    
+    static let timerColor = Color(red: 0.302, green: 0.533, blue: 0.725) // #4d88b9
 }

@@ -1,9 +1,11 @@
 import Foundation
 import Combine
 import CloudKit
+import SwiftUI
 
 class DeviceManager: ObservableObject {
     @Published var devices: [Device] = []
+    @Published var currentTimestamp: Date = Date()
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
     private let cloudKitContainer = CKContainer.default()
@@ -23,9 +25,16 @@ class DeviceManager: ObservableObject {
     }
     
     private func setupTimer() {
+        // Create a timer that updates a timestamp every second,
+        // which forces all observing views to refresh
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.objectWillChange.send()
+            guard let self = self else { return }
+            self.currentTimestamp = Date()
+            self.objectWillChange.send()
         }
+        
+        // Make sure timer runs even when scrolling
+        RunLoop.current.add(timer!, forMode: .common)
     }
     
     func addDevice(name: String) {
