@@ -1,12 +1,13 @@
 import SwiftUI
+import OrthoTimeTrackerCore
 
 struct DeviceDetailView: View {
-    let device: Device
-    @EnvironmentObject private var deviceManager: DeviceManager
+    let device: OTTDevice
+    @EnvironmentObject private var deviceManager: OTTDeviceManager
     @State private var deviceName: String
     @State private var showingRenameAlert = false
     
-    init(device: Device) {
+    init(device: OTTDevice) {
         self.device = device
         _deviceName = State(initialValue: device.name)
     }

@@ -1,9 +1,10 @@
 import SwiftUI
 import CloudKit
+import OrthoTimeTrackerCore
 
 @main
 struct OrthoTimeTrackerApp: App {
-    @StateObject private var deviceManager = DeviceManager()
+    @StateObject private var deviceManager = OTTDeviceManager()
     
     var body: some Scene {
         WindowGroup {

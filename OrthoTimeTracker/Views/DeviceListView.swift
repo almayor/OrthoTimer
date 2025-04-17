@@ -1,9 +1,10 @@
 import SwiftUI
+import OrthoTimeTrackerCore
 
 // Widget preview content that can be presented in a sheet
 // Defined directly in this file to avoid import issues
 struct WidgetPreviewContent: View {
-    @ObservedObject var deviceManager: DeviceManager // Changed to @ObservedObject to trigger updates
+    @ObservedObject var deviceManager: OTTDeviceManager // Changed to match the Core package type
     @Environment(\.presentationMode) var presentationMode
     
     // Use a timer to update the view
@@ -87,7 +88,7 @@ struct WidgetPreviewContent: View {
     }
     
     // Single device preview (small widget)
-    private func singleDevicePreview(device: Device) -> some View {
+    private func singleDevicePreview(device: OTTDevice) -> some View {
         ZStack {
             Color.accentColor.opacity(0.1)
             
@@ -127,7 +128,7 @@ struct WidgetPreviewContent: View {
     }
     
     // Multiple devices preview (medium/large widget)
-    private func multipleDevicesPreview(devices: [Device]) -> some View {
+    private func multipleDevicesPreview(devices: [OTTDevice]) -> some View {
         ZStack {
             Color.accentColor.opacity(0.1)
             
@@ -162,7 +163,7 @@ struct WidgetPreviewContent: View {
     }
     
     // Device row for multiple devices preview
-    private func deviceRowPreview(device: Device) -> some View {
+    private func deviceRowPreview(device: OTTDevice) -> some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(device.name)
@@ -225,7 +226,7 @@ struct WidgetPreviewContent: View {
 }
 
 struct DeviceListView: View {
-    @EnvironmentObject private var deviceManager: DeviceManager
+    @EnvironmentObject private var deviceManager: OTTDeviceManager
     @State private var showingAddDevice = false
     @State private var newDeviceName = ""
     @State private var deviceToDelete: IndexSet?
@@ -304,8 +305,8 @@ struct DeviceListView: View {
 }
 
 struct DeviceRowView: View {
-    let device: Device
-    @EnvironmentObject private var deviceManager: DeviceManager
+    let device: OTTDevice
+    @EnvironmentObject private var deviceManager: OTTDeviceManager
     
     var body: some View {
         HStack {
@@ -332,6 +333,6 @@ struct DeviceRowView: View {
 struct DeviceListView_Previews: PreviewProvider {
     static var previews: some View {
         DeviceListView()
-            .environmentObject(DeviceManager())
+            .environmentObject(OTTDeviceManager())
     }
 }

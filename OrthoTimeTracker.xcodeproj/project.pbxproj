@@ -10,6 +10,8 @@
 		8829DDBC2DB1542700B32F01 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBB2DB1542700B32F01 /* WidgetKit.framework */; };
 		8829DDBE2DB1542700B32F01 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBD2DB1542700B32F01 /* SwiftUI.framework */; };
 		8829DDCD2DB1542900B32F01 /* OrthoTimeTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8888876D2DB16DA000284BCC /* OrthoTimeTrackerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8888876C2DB16DA000284BCC /* OrthoTimeTrackerCore */; };
+		8888876F2DB16DDF00284BCC /* OrthoTimeTrackerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8888876E2DB16DDF00284BCC /* OrthoTimeTrackerCore */; };
 		AA001C3A2A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C392A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift */; };
 		AA001C3E2A0E1C8100B7E123 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA001C3D2A0E1C8100B7E123 /* Assets.xcassets */; };
 		AA001C412A0E1C8100B7E123 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA001C402A0E1C8100B7E123 /* Preview Assets.xcassets */; };
@@ -93,6 +95,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8888876F2DB16DDF00284BCC /* OrthoTimeTrackerCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8888876D2DB16DA000284BCC /* OrthoTimeTrackerCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,6 +248,7 @@
 			);
 			name = OrthoTimeTrackerMac;
 			packageProductDependencies = (
+				8888876E2DB16DDF00284BCC /* OrthoTimeTrackerCore */,
 			);
 			productName = OrthoTimeTrackerMac;
 			productReference = 884654E22DB1635D009758C3 /* OrthoTimeTrackerMac.app */;
@@ -297,6 +302,9 @@
 				Base,
 			);
 			mainGroup = AA001C2D2A0E1C7E00B7E123;
+			packageReferences = (
+				8888876B2DB16DA000284BCC /* XCLocalSwiftPackageReference "OrthoTimeTrackerCore" */,
+			);
 			productRefGroup = AA001C372A0E1C7E00B7E123 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -716,6 +724,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		8888876B2DB16DA000284BCC /* XCLocalSwiftPackageReference "OrthoTimeTrackerCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = OrthoTimeTrackerCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8888876C2DB16DA000284BCC /* OrthoTimeTrackerCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OrthoTimeTrackerCore;
+		};
+		8888876E2DB16DDF00284BCC /* OrthoTimeTrackerCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8888876B2DB16DA000284BCC /* XCLocalSwiftPackageReference "OrthoTimeTrackerCore" */;
+			productName = OrthoTimeTrackerCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AA001C2E2A0E1C7E00B7E123 /* Project object */;
 }

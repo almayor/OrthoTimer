@@ -11,17 +11,32 @@ public class DeviceManager: ObservableObject {
     @Published public var currentTimestamp: Date = Date()
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
-    private let cloudKitContainer = CKContainer.default()
+    private var cloudKitContainer: CKContainer?
     private var lastMidnightCheck = Date()
     
     public init() {
+        // Try to initialize CloudKit container, but make it optional
+        do {
+            cloudKitContainer = CKContainer.default()
+        } catch {
+            print("CloudKit container initialization failed: \(error.localizedDescription)")
+            cloudKitContainer = nil
+        }
+        
         #if os(iOS)
         // Request notification permission on iOS
         requestNotificationPermission()
         #endif
         
         setupTimer()
-        fetchDevices()
+        
+        // Always start with sample data to ensure we have something to show
+        loadSampleData()
+        
+        // Then try to fetch from CloudKit if available
+        if cloudKitContainer != nil {
+            fetchDevices()
+        }
         
         // Check for midnight transition and notification conditions
         Timer.publish(every: 60, on: .main, in: .common)
@@ -261,46 +276,43 @@ public class DeviceManager: ObservableObject {
     // MARK: - CloudKit Operations
     
     private func fetchDevices() {
-        // Use sample data for:
-        // 1. Simulator testing
-        // 2. macOS app without Developer Program
-        // 3. iOS without Developer Program
+        // Use sample data when CloudKit is not available
+        // Sample data has already been loaded in init()
+        
+        // Guard for CloudKit availability
+        guard let container = cloudKitContainer else {
+            print("CloudKit container not available")
+            return
+        }
+        
+        // Skip CloudKit on simulator, macOS, or debug builds
         #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        // Create some sample devices for testing
-        let device1 = Device(name: "Retainer")
-        let device2 = Device(name: "Invisalign", totalTimeToday: 3600) // 1 hour
-        devices = [device1, device2]
-        checkForMidnightTransition()
+        print("Skipping CloudKit fetch on simulator/macOS/debug")
         return
         #endif
         
         // Real CloudKit implementation - will work when you have a developer account
-        let privateDatabase = cloudKitContainer.privateCloudDatabase
+        let privateDatabase = container.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
         
         privateDatabase.perform(query, inZoneWith: nil) { [weak self] results, error in
             if let error = error {
                 print("Error fetching devices: \(error.localizedDescription)")
-                // Fall back to sample data if CloudKit fails
-                self?.loadSampleData()
                 return
             }
             
-            guard let results = results else { 
-                self?.loadSampleData()
+            guard let results = results, !results.isEmpty else { 
+                print("No results found in CloudKit")
                 return 
             }
             
             let devices = results.compactMap { Device.fromCKRecord($0) }
             
             DispatchQueue.main.async {
-                if devices.isEmpty {
-                    // Fall back to sample data if no devices
-                    self?.loadSampleData()
-                } else {
+                if !devices.isEmpty {
                     self?.devices = devices
+                    self?.checkForMidnightTransition() // Check if we need to reset timers
                 }
-                self?.checkForMidnightTransition() // Check if we need to reset timers
             }
         }
     }
@@ -315,12 +327,20 @@ public class DeviceManager: ObservableObject {
     }
     
     private func saveDevice(_ device: Device) {
+        // Skip CloudKit on simulator, macOS, or debug builds
         #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        // Skip CloudKit operations in simulator, macOS without Developer Program, and debug builds
         print("Skipping CloudKit save - using local data only")
-        #else
+        return
+        #endif
+        
+        // Guard for CloudKit availability
+        guard let container = cloudKitContainer else {
+            print("CloudKit container not available for saving")
+            return
+        }
+        
         // Real CloudKit implementation
-        let privateDatabase = cloudKitContainer.privateCloudDatabase
+        let privateDatabase = container.privateCloudDatabase
         let record = device.toCKRecord()
         
         privateDatabase.save(record) { _, error in
@@ -328,16 +348,23 @@ public class DeviceManager: ObservableObject {
                 print("Error saving device: \(error.localizedDescription)")
             }
         }
-        #endif
     }
     
     private func deleteDeviceFromCloud(_ device: Device) {
+        // Skip CloudKit on simulator, macOS, or debug builds
         #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        // Skip CloudKit operations in simulator, macOS without Developer Program, and debug builds
         print("Skipping CloudKit delete - using local data only")
-        #else
+        return
+        #endif
+        
+        // Guard for CloudKit availability
+        guard let container = cloudKitContainer else {
+            print("CloudKit container not available for deleting")
+            return
+        }
+        
         // Real CloudKit implementation
-        let privateDatabase = cloudKitContainer.privateCloudDatabase
+        let privateDatabase = container.privateCloudDatabase
         let recordID = CKRecord.ID(recordName: device.id.uuidString)
         
         privateDatabase.delete(withRecordID: recordID) { _, error in
@@ -345,6 +372,5 @@ public class DeviceManager: ObservableObject {
                 print("Error deleting device: \(error.localizedDescription)")
             }
         }
-        #endif
     }
 }
