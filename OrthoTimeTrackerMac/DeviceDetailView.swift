@@ -23,6 +23,8 @@ struct DeviceDetailView: View {
                         })
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .font(.title)
+                        .frame(height: 40) // Fixed height to prevent text being cut off
+                        .padding(.vertical, 4) // Extra padding for better appearance
                         
                         Button("Save") {
                             updateDeviceName()

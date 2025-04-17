@@ -39,7 +39,8 @@ struct ContentView: View {
                     
                     TextField("Device Name", text: $newDeviceName)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(width: 250)
+                        .frame(width: 250, height: 30) // Fixed height to prevent text being cut off
+                        .padding(.vertical, 4) // Extra padding for better appearance
                     
                     HStack {
                         Button("Cancel") {
@@ -59,7 +60,7 @@ struct ContentView: View {
                     .padding(.top)
                 }
                 .padding()
-                .frame(width: 300, height: 200)
+                .frame(width: 300, height: 220) // Increased height to provide more space
             }
         } detail: {
             if let selectedDeviceID = selectedDeviceID,
