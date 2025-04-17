@@ -261,8 +261,11 @@ public class DeviceManager: ObservableObject {
     // MARK: - CloudKit Operations
     
     private func fetchDevices() {
-        // For simulator testing, use some sample data instead of CloudKit
-        #if targetEnvironment(simulator)
+        // Use sample data for:
+        // 1. Simulator testing
+        // 2. macOS app without Developer Program
+        // 3. iOS without Developer Program
+        #if targetEnvironment(simulator) || os(macOS) || DEBUG
         // Create some sample devices for testing
         let device1 = Device(name: "Retainer")
         let device2 = Device(name: "Invisalign", totalTimeToday: 3600) // 1 hour
@@ -278,24 +281,43 @@ public class DeviceManager: ObservableObject {
         privateDatabase.perform(query, inZoneWith: nil) { [weak self] results, error in
             if let error = error {
                 print("Error fetching devices: \(error.localizedDescription)")
+                // Fall back to sample data if CloudKit fails
+                self?.loadSampleData()
                 return
             }
             
-            guard let results = results else { return }
+            guard let results = results else { 
+                self?.loadSampleData()
+                return 
+            }
             
             let devices = results.compactMap { Device.fromCKRecord($0) }
             
             DispatchQueue.main.async {
-                self?.devices = devices
+                if devices.isEmpty {
+                    // Fall back to sample data if no devices
+                    self?.loadSampleData()
+                } else {
+                    self?.devices = devices
+                }
                 self?.checkForMidnightTransition() // Check if we need to reset timers
             }
         }
     }
     
+    private func loadSampleData() {
+        DispatchQueue.main.async { [weak self] in
+            let device1 = Device(name: "Retainer")
+            let device2 = Device(name: "Invisalign", totalTimeToday: 3600) // 1 hour
+            self?.devices = [device1, device2]
+            self?.checkForMidnightTransition()
+        }
+    }
+    
     private func saveDevice(_ device: Device) {
-        #if targetEnvironment(simulator)
-        // Skip CloudKit operations in simulator
-        print("Skipping CloudKit save in simulator")
+        #if targetEnvironment(simulator) || os(macOS) || DEBUG
+        // Skip CloudKit operations in simulator, macOS without Developer Program, and debug builds
+        print("Skipping CloudKit save - using local data only")
         #else
         // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
@@ -310,9 +332,9 @@ public class DeviceManager: ObservableObject {
     }
     
     private func deleteDeviceFromCloud(_ device: Device) {
-        #if targetEnvironment(simulator)
-        // Skip CloudKit operations in simulator
-        print("Skipping CloudKit delete in simulator")
+        #if targetEnvironment(simulator) || os(macOS) || DEBUG
+        // Skip CloudKit operations in simulator, macOS without Developer Program, and debug builds
+        print("Skipping CloudKit delete - using local data only")
         #else
         // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
