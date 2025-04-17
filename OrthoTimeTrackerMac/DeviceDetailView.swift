@@ -2,15 +2,30 @@ import SwiftUI
 import OrthoTimeTrackerCore
 import AppKit
 
+// View model to handle device detail state
+class DeviceDetailViewModel: ObservableObject {
+    @Published var isEditingName: Bool = false
+    @Published var deviceName: String = ""
+    
+    func resetEditState() {
+        isEditingName = false
+    }
+    
+    func startEditing(device: OTTDevice) {
+        deviceName = device.name
+        isEditingName = true
+    }
+}
+
 struct DeviceDetailView: View {
     let device: OTTDevice
     @EnvironmentObject private var deviceManager: OTTDeviceManager
-    @State private var deviceName: String
-    @State private var isEditingName = false
+    @StateObject private var viewModel = DeviceDetailViewModel()
     
-    init(device: OTTDevice) {
-        self.device = device
-        self._deviceName = State(initialValue: device.name)
+    // Create an ID for this view instance based on the device ID
+    // This ensures the view is recreated when the device changes
+    private var deviceId: String {
+        return device.id.uuidString
     }
     
     var body: some View {
@@ -18,10 +33,10 @@ struct DeviceDetailView: View {
             VStack(alignment: .leading, spacing: 20) {
                 // Header
                 HStack {
-                    if isEditingName {
+                    if viewModel.isEditingName {
                         // Using our custom text field with title font
                         CustomTextField(
-                            text: $deviceName,
+                            text: $viewModel.deviceName,
                             onCommit: {
                                 updateDeviceName()
                             },
@@ -40,9 +55,8 @@ struct DeviceDetailView: View {
                         Spacer()
                         
                         Button(action: {
-                            // Reset to current device name before entering edit mode
-                            deviceName = device.name
-                            isEditingName = true
+                            // Start editing with the current device name
+                            viewModel.startEditing(device: device)
                         }) {
                             Image(systemName: "pencil")
                         }
@@ -95,15 +109,21 @@ struct DeviceDetailView: View {
             }
             .padding()
         }
+        // This is the key part - use the ID to force view reset when device changes
+        .id(deviceId)
+        // When this view appears, reset the editing state
+        .onAppear {
+            viewModel.resetEditState()
+        }
     }
     
     private func updateDeviceName() {
-        if !deviceName.isEmpty && deviceName != device.name {
+        if !viewModel.deviceName.isEmpty && viewModel.deviceName != device.name {
             var updatedDevice = device
-            updatedDevice.name = deviceName
+            updatedDevice.name = viewModel.deviceName
             deviceManager.updateDevice(updatedDevice)
         }
-        isEditingName = false
+        viewModel.isEditingName = false
     }
 }
 
@@ -152,4 +172,3 @@ struct StatRow: View {
         }
     }
 }
-
