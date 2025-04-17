@@ -31,5 +31,5 @@ class TimeUtils {
         return calendar.date(from: components) ?? date
     }
     
-    static let timerColor = Color(red: 0.302, green: 0.533, blue: 0.725) // #4d88b9
+    static let timerColor = Color(red: 0.200, green: 0.450, blue: 0.800) // A darker, more orthodontist-like blue
 }

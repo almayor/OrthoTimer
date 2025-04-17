@@ -151,6 +151,17 @@ class DeviceManager: ObservableObject {
     // MARK: - CloudKit Operations
     
     private func fetchDevices() {
+        // For simulator testing, use some sample data instead of CloudKit
+        #if targetEnvironment(simulator)
+        // Create some sample devices for testing
+        let device1 = Device(name: "Retainer")
+        let device2 = Device(name: "Invisalign", totalTimeToday: 3600) // 1 hour
+        devices = [device1, device2]
+        checkForMidnightTransition()
+        return
+        #endif
+        
+        // Real CloudKit implementation - will work when you have a developer account
         let privateDatabase = cloudKitContainer.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
         
@@ -172,6 +183,11 @@ class DeviceManager: ObservableObject {
     }
     
     private func saveDevice(_ device: Device) {
+        #if targetEnvironment(simulator)
+        // Skip CloudKit operations in simulator
+        print("Skipping CloudKit save in simulator")
+        #else
+        // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
         let record = device.toCKRecord()
         
@@ -180,9 +196,15 @@ class DeviceManager: ObservableObject {
                 print("Error saving device: \(error.localizedDescription)")
             }
         }
+        #endif
     }
     
     private func deleteDeviceFromCloud(_ device: Device) {
+        #if targetEnvironment(simulator)
+        // Skip CloudKit operations in simulator
+        print("Skipping CloudKit delete in simulator")
+        #else
+        // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
         let recordID = CKRecord.ID(recordName: device.id.uuidString)
         
@@ -191,5 +213,6 @@ class DeviceManager: ObservableObject {
                 print("Error deleting device: \(error.localizedDescription)")
             }
         }
+        #endif
     }
 }

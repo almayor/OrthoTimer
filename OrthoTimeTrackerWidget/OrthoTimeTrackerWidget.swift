@@ -2,8 +2,6 @@ import WidgetKit
 import SwiftUI
 import CloudKit
 
-// MARK: - Widget Configuration
-
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), devices: [sampleDevice()])
@@ -15,6 +13,15 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        // For simulator testing, use sample data instead of CloudKit
+        // When you join Apple Developer Program, you can uncomment the CloudKit code
+        let devices = [sampleDevice()]
+        let currentDate = Date()
+        let entries = createTimelineEntries(startDate: currentDate, devices: devices)
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+        
+        /* Uncomment when you have a developer account:
         fetchDevices { fetchedDevices in
             let currentDate = Date()
             
@@ -24,6 +31,7 @@ struct Provider: TimelineProvider {
             
             completion(timeline)
         }
+        */
     }
     
     // Sample device for previews and placeholders
@@ -84,9 +92,7 @@ struct SimpleEntry: TimelineEntry {
     let devices: [Device]
 }
 
-// MARK: - Widget Views
-
-struct TimeTrackerWidgetEntryView: View {
+struct OrthoTimeTrackerWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var widgetFamily
     
@@ -115,16 +121,16 @@ struct SingleDeviceWidgetView: View {
     
     var body: some View {
         ZStack {
-            Color("AccentColor").opacity(0.1)
+            Color.accentColor.opacity(0.1)
             
             VStack(spacing: 10) {
                 Text(device.name)
                     .font(.headline)
                     .lineLimit(1)
                 
-                Text(TimeUtils.formattedTime(device.totalTime()))
+                Text(formattedTime(device.totalTime()))
                     .font(.system(.title2, design: .monospaced))
-                    .foregroundColor(device.isRunning ? Color("AccentColor") : .primary)
+                    .foregroundColor(device.isRunning ? .accentColor : .primary)
                 
                 // Button to toggle timer state
                 Link(destination: URL(string: "orthotimetracker://toggle/\(device.id.uuidString)")!) {
@@ -133,7 +139,7 @@ struct SingleDeviceWidgetView: View {
                         .fontWeight(.medium)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
-                        .background(device.isRunning ? Color.red : Color("AccentColor"))
+                        .background(device.isRunning ? Color.red : Color.accentColor)
                         .foregroundColor(.white)
                         .cornerRadius(12)
                 }
@@ -144,11 +150,18 @@ struct SingleDeviceWidgetView: View {
                         Text("Active")
                     }
                     .font(.caption2)
-                    .foregroundColor(Color("AccentColor"))
+                    .foregroundColor(.accentColor)
                 }
             }
             .padding()
         }
+    }
+    
+    private func formattedTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        let seconds = Int(timeInterval) % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
@@ -157,7 +170,7 @@ struct MultipleDevicesWidgetView: View {
     
     var body: some View {
         ZStack {
-            Color("AccentColor").opacity(0.1)
+            Color.accentColor.opacity(0.1)
             
             if devices.isEmpty {
                 EmptyDeviceView()
@@ -200,16 +213,16 @@ struct DeviceRowWidgetView: View {
                     .font(.headline)
                     .lineLimit(1)
                 
-                Text(TimeUtils.formattedTime(device.totalTime()))
+                Text(formattedTime(device.totalTime()))
                     .font(.system(.body, design: .monospaced))
-                    .foregroundColor(device.isRunning ? Color("AccentColor") : .primary)
+                    .foregroundColor(device.isRunning ? .accentColor : .primary)
             }
             
             Spacer()
             
             if device.isRunning {
                 Image(systemName: "timer.circle.fill")
-                    .foregroundColor(Color("AccentColor"))
+                    .foregroundColor(.accentColor)
             }
             
             // Button to toggle timer state
@@ -219,13 +232,20 @@ struct DeviceRowWidgetView: View {
                     .fontWeight(.medium)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 4)
-                    .background(device.isRunning ? Color.red : Color("AccentColor"))
+                    .background(device.isRunning ? Color.red : Color.accentColor)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
+    }
+    
+    private func formattedTime(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval) / 3600
+        let minutes = Int(timeInterval) / 60 % 60
+        let seconds = Int(timeInterval) % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
 }
 
@@ -234,7 +254,7 @@ struct EmptyDeviceView: View {
         VStack(spacing: 8) {
             Image(systemName: "timer.circle")
                 .font(.system(size: 28))
-                .foregroundColor(Color("AccentColor").opacity(0.5))
+                .foregroundColor(Color.accentColor.opacity(0.5))
             
             Text("No Devices")
                 .font(.headline)
@@ -247,14 +267,19 @@ struct EmptyDeviceView: View {
     }
 }
 
-// MARK: - Widget Definition
-
-struct TimeTrackerWidget: Widget {
-    let kind: String = "TimeTrackerWidget"
+struct OrthoTimeTrackerWidget: Widget {
+    let kind: String = "OrthoTimeTrackerWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            TimeTrackerWidgetEntryView(entry: entry)
+            if #available(iOS 17.0, *) {
+                OrthoTimeTrackerWidgetEntryView(entry: entry)
+                    .containerBackground(.fill.tertiary, for: .widget)
+            } else {
+                OrthoTimeTrackerWidgetEntryView(entry: entry)
+                    .padding()
+                    .background()
+            }
         }
         .configurationDisplayName("Device Tracker")
         .description("Track your orthodontic device wear time.")
@@ -262,25 +287,52 @@ struct TimeTrackerWidget: Widget {
     }
 }
 
-// MARK: - Widget Previews
-
-struct TimeTrackerWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleDevices = [
-            Device(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date()),
-            Device(name: "Invisalign", totalTimeToday: 14400),
-            Device(name: "Nightguard", totalTimeToday: 3600, sessionStartTime: Date())
-        ]
-        let entry = SimpleEntry(date: Date(), devices: sampleDevices)
+// Copy of Device model for Widget
+struct Device: Identifiable, Equatable {
+    var id: UUID
+    var name: String
+    var totalTimeToday: TimeInterval
+    var sessionStartTime: Date?
+    var weeklyStats: [Date: TimeInterval] = [:]
+    var monthlyStats: [Date: TimeInterval] = [:]
+    
+    var isRunning: Bool {
+        sessionStartTime != nil
+    }
+    
+    init(id: UUID = UUID(), name: String, totalTimeToday: TimeInterval = 0, sessionStartTime: Date? = nil) {
+        self.id = id
+        self.name = name
+        self.totalTimeToday = totalTimeToday
+        self.sessionStartTime = sessionStartTime
+    }
+    
+    func currentSessionTime() -> TimeInterval {
+        guard let startTime = sessionStartTime else { return 0 }
+        return Date().timeIntervalSince(startTime)
+    }
+    
+    func totalTime() -> TimeInterval {
+        totalTimeToday + (isRunning ? currentSessionTime() : 0)
+    }
+    
+    static func fromCKRecord(_ record: CKRecord) -> Device? {
+        let idString = record.recordID.recordName
+        guard 
+            let id = UUID(uuidString: idString),
+            let name = record["name"] as? String
+        else { return nil }
         
-        Group {
-            TimeTrackerWidgetEntryView(entry: SimpleEntry(date: Date(), devices: [sampleDevices[0]]))
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-                .previewDisplayName("Small - Single Device")
-            
-            TimeTrackerWidgetEntryView(entry: entry)
-                .previewContext(WidgetPreviewContext(family: .systemMedium))
-                .previewDisplayName("Medium - Multiple Devices")
+        var device = Device(id: id, name: name)
+        
+        if let totalTimeToday = record["totalTimeToday"] as? TimeInterval {
+            device.totalTimeToday = totalTimeToday
         }
+        
+        if let sessionStartTime = record["sessionStartTime"] as? Date {
+            device.sessionStartTime = sessionStartTime
+        }
+        
+        return device
     }
 }

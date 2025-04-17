@@ -1,42 +1,14 @@
 import SwiftUI
 
-// Widget preview content that can be presented in a sheet
-// Defined directly in this file to avoid import issues
-struct WidgetPreviewContent: View {
-    @ObservedObject var deviceManager: DeviceManager // Changed to @ObservedObject to trigger updates
+// This sheet view wraps the widget preview content to avoid import issues
+struct WidgetPreviewSheetView: View {
+    let deviceManager: DeviceManager
     @Environment(\.presentationMode) var presentationMode
     
-    // Use a timer to update the view
-    @State private var timer: Timer?
-    @State private var currentTime = Date()
-    
     var body: some View {
-        // Setup the timer when view appears, clean up when it disappears
-        let _ = VStack {
-            Text("").onAppear {
-                // Create the timer when view appears
-                self.timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                    self.currentTime = Date()  // Update the time to trigger view refresh
-                }
-                // Make sure timer runs even when scrolling
-                if let timer = self.timer {
-                    RunLoop.current.add(timer, forMode: .common)
-                }
-            }
-            .onDisappear {
-                // Clean up timer when view disappears
-                self.timer?.invalidate()
-                self.timer = nil
-            }
-        }
-        
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // This empty Text view updates with the currentTime to force refresh
-                    Text("")
-                        .hidden()
-                        .id(currentTime.timeIntervalSince1970)
                     Text("Widget Previews")
                         .font(.title)
                         .padding(.top)
@@ -101,7 +73,9 @@ struct WidgetPreviewContent: View {
                     .foregroundColor(device.isRunning ? .accentColor : .primary)
                 
                 Button(action: {
-                    deviceManager.toggleTimer(for: device)
+                    // Create a copy of the device to avoid directy mutation
+                    var updatedDevice = device
+                    deviceManager.toggleTimer(for: updatedDevice)
                 }) {
                     Text(device.isRunning ? "Stop" : "Start")
                         .font(.caption)
@@ -134,7 +108,7 @@ struct WidgetPreviewContent: View {
             if devices.isEmpty {
                 emptyDevicePreview()
             } else {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing:.zero) {
                     Text("OrthoTimeTracker")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -221,117 +195,5 @@ struct WidgetPreviewContent: View {
         let minutes = Int(timeInterval) / 60 % 60
         let seconds = Int(timeInterval) % 60
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-    }
-}
-
-struct DeviceListView: View {
-    @EnvironmentObject private var deviceManager: DeviceManager
-    @State private var showingAddDevice = false
-    @State private var newDeviceName = ""
-    @State private var deviceToDelete: IndexSet?
-    @State private var showingDeleteConfirmation = false
-    @State private var showingWidgetPreview = false
-    
-    // Helper function to create a widget preview
-    private func showWidgetPreview() {
-        showingWidgetPreview = true
-    }
-    
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(deviceManager.devices) { device in
-                    NavigationLink(destination: DeviceDetailView(device: device)) {
-                        DeviceRowView(device: device)
-                    }
-                }
-                .onDelete { indexSet in
-                    deviceToDelete = indexSet
-                    showingDeleteConfirmation = true
-                }
-            }
-            .navigationTitle("My Devices")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingAddDevice = true
-                    }) {
-                        Label("Add Device", systemImage: "plus")
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        showWidgetPreview()
-                    }) {
-                        Label("Widgets", systemImage: "viewfinder")
-                    }
-                }
-            }
-            // Custom sheet presentation for widget preview
-            .sheet(isPresented: $showingWidgetPreview) {
-                WidgetPreviewContent(deviceManager: deviceManager)
-            }
-            .alert("Add New Device", isPresented: $showingAddDevice) {
-                TextField("Device Name", text: $newDeviceName)
-                Button("Cancel", role: .cancel) {
-                    newDeviceName = ""
-                }
-                Button("Add") {
-                    if !newDeviceName.isEmpty {
-                        deviceManager.addDevice(name: newDeviceName)
-                        newDeviceName = ""
-                    }
-                }
-            }
-            .confirmationDialog(
-                "Are you sure you want to delete this device?",
-                isPresented: $showingDeleteConfirmation,
-                titleVisibility: .visible
-            ) {
-                Button("Delete", role: .destructive) {
-                    if let indexSet = deviceToDelete {
-                        deviceManager.deleteDevice(at: indexSet)
-                        deviceToDelete = nil
-                    }
-                }
-                Button("Cancel", role: .cancel) {
-                    deviceToDelete = nil
-                }
-            }
-        }
-    }
-}
-
-struct DeviceRowView: View {
-    let device: Device
-    @EnvironmentObject private var deviceManager: DeviceManager
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(device.name)
-                    .font(.headline)
-                
-                // Using the currentTimestamp from DeviceManager ensures this updates every second
-                Text(TimeUtils.formattedTime(device.totalTime()))
-                    .font(.subheadline)
-                    .foregroundColor(device.isRunning ? .accentColor : .secondary)
-            }
-            
-            Spacer()
-            
-            if device.isRunning {
-                Image(systemName: "timer")
-                    .foregroundColor(.accentColor)
-            }
-        }
-    }
-}
-
-struct DeviceListView_Previews: PreviewProvider {
-    static var previews: some View {
-        DeviceListView()
-            .environmentObject(DeviceManager())
     }
 }

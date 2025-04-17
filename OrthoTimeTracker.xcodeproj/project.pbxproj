@@ -3,10 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8829DDBC2DB1542700B32F01 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBB2DB1542700B32F01 /* WidgetKit.framework */; };
+		8829DDBE2DB1542700B32F01 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBD2DB1542700B32F01 /* SwiftUI.framework */; };
+		8829DDCD2DB1542900B32F01 /* OrthoTimeTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AA001C3A2A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C392A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift */; };
 		AA001C3E2A0E1C8100B7E123 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA001C3D2A0E1C8100B7E123 /* Assets.xcassets */; };
 		AA001C412A0E1C8100B7E123 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA001C402A0E1C8100B7E123 /* Preview Assets.xcassets */; };
@@ -18,7 +21,34 @@
 		AA001C572A0E1D5A00B7E123 /* TimeTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C562A0E1D5A00B7E123 /* TimeTrackerWidget.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		8829DDCB2DB1542900B32F01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA001C2E2A0E1C7E00B7E123 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8829DDB82DB1542700B32F01;
+			remoteInfo = OrthoTimeTrackerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8829DDD22DB1542900B32F01 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8829DDCD2DB1542900B32F01 /* OrthoTimeTrackerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = OrthoTimeTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8829DDBB2DB1542700B32F01 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		8829DDBD2DB1542700B32F01 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		AA001C362A0E1C7E00B7E123 /* OrthoTimeTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrthoTimeTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA001C392A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrthoTimeTrackerApp.swift; sourceTree = "<group>"; };
 		AA001C3D2A0E1C8100B7E123 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -33,7 +63,30 @@
 		AA001C562A0E1D5A00B7E123 /* TimeTrackerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeTrackerWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8829DDCE2DB1542900B32F01 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8829DDB82DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8829DDBF2DB1542700B32F01 /* OrthoTimeTrackerWidget */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (8829DDCE2DB1542900B32F01 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = OrthoTimeTrackerWidget; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		8829DDB62DB1542700B32F01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8829DDBE2DB1542700B32F01 /* SwiftUI.framework in Frameworks */,
+				8829DDBC2DB1542700B32F01 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA001C332A0E1C7E00B7E123 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,10 +97,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8829DDBA2DB1542700B32F01 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8829DDBB2DB1542700B32F01 /* WidgetKit.framework */,
+				8829DDBD2DB1542700B32F01 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		AA001C2D2A0E1C7E00B7E123 = {
 			isa = PBXGroup;
 			children = (
 				AA001C382A0E1C7E00B7E123 /* OrthoTimeTracker */,
+				8829DDBF2DB1542700B32F01 /* OrthoTimeTrackerWidget */,
+				8829DDBA2DB1542700B32F01 /* Frameworks */,
 				AA001C372A0E1C7E00B7E123 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				AA001C362A0E1C7E00B7E123 /* OrthoTimeTracker.app */,
+				8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +194,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8829DDB82DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8829DDCF2DB1542900B32F01 /* Build configuration list for PBXNativeTarget "OrthoTimeTrackerWidgetExtension" */;
+			buildPhases = (
+				8829DDB52DB1542700B32F01 /* Sources */,
+				8829DDB62DB1542700B32F01 /* Frameworks */,
+				8829DDB72DB1542700B32F01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8829DDBF2DB1542700B32F01 /* OrthoTimeTrackerWidget */,
+			);
+			name = OrthoTimeTrackerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = OrthoTimeTrackerWidgetExtension;
+			productReference = 8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		AA001C352A0E1C7E00B7E123 /* OrthoTimeTracker */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AA001C462A0E1C8100B7E123 /* Build configuration list for PBXNativeTarget "OrthoTimeTracker" */;
@@ -136,10 +223,12 @@
 				AA001C322A0E1C7E00B7E123 /* Sources */,
 				AA001C332A0E1C7E00B7E123 /* Frameworks */,
 				AA001C342A0E1C7E00B7E123 /* Resources */,
+				8829DDD22DB1542900B32F01 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8829DDCC2DB1542900B32F01 /* PBXTargetDependency */,
 			);
 			name = OrthoTimeTracker;
 			productName = OrthoTimeTracker;
@@ -152,9 +241,12 @@
 		AA001C2E2A0E1C7E00B7E123 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1240;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
+					8829DDB82DB1542700B32F01 = {
+						CreatedOnToolsVersion = 16.3;
+					};
 					AA001C352A0E1C7E00B7E123 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -174,11 +266,19 @@
 			projectRoot = "";
 			targets = (
 				AA001C352A0E1C7E00B7E123 /* OrthoTimeTracker */,
+				8829DDB82DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8829DDB72DB1542700B32F01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA001C342A0E1C7E00B7E123 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -191,6 +291,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8829DDB52DB1542700B32F01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA001C322A0E1C7E00B7E123 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -207,7 +314,82 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		8829DDCC2DB1542900B32F01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8829DDB82DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension */;
+			targetProxy = 8829DDCB2DB1542900B32F01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		8829DDD02DB1542900B32F01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 522L59B6X6;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OrthoTimeTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTrackerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker.OrthoTimeTrackerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8829DDD12DB1542900B32F01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 522L59B6X6;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = OrthoTimeTrackerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTrackerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker.OrthoTimeTrackerWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		AA001C442A0E1C8100B7E123 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -332,7 +514,7 @@
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTracker/OrthoTimeTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"OrthoTimeTracker/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 522L59B6X6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = OrthoTimeTracker/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTracker;
@@ -342,7 +524,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourname.OrthoTimeTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -357,7 +539,7 @@
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTracker/OrthoTimeTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"OrthoTimeTracker/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 522L59B6X6;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = OrthoTimeTracker/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTracker;
@@ -367,7 +549,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourname.OrthoTimeTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -377,6 +559,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8829DDCF2DB1542900B32F01 /* Build configuration list for PBXNativeTarget "OrthoTimeTrackerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8829DDD02DB1542900B32F01 /* Debug */,
+				8829DDD12DB1542900B32F01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AA001C312A0E1C7E00B7E123 /* Build configuration list for PBXProject "OrthoTimeTracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
