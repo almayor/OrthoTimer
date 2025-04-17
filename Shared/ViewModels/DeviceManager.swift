@@ -2,7 +2,9 @@ import Foundation
 import Combine
 import CloudKit
 import SwiftUI
+#if os(iOS)
 import UserNotifications
+#endif
 
 class DeviceManager: ObservableObject {
     @Published var devices: [Device] = []
@@ -13,8 +15,10 @@ class DeviceManager: ObservableObject {
     private var lastMidnightCheck = Date()
     
     init() {
-        // Request notification permission
+        #if os(iOS)
+        // Request notification permission on iOS
         requestNotificationPermission()
+        #endif
         
         setupTimer()
         fetchDevices()
@@ -24,11 +28,14 @@ class DeviceManager: ObservableObject {
             .autoconnect()
             .sink { [weak self] _ in
                 self?.checkForMidnightTransition()
+                #if os(iOS)
                 self?.checkNotificationConditions()
+                #endif
             }
             .store(in: &cancellables)
     }
     
+    #if os(iOS)
     // Request permission to send notifications
     private func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -115,6 +122,7 @@ class DeviceManager: ObservableObject {
         
         UNUserNotificationCenter.current().add(request)
     }
+    #endif
     
     private func setupTimer() {
         // Create a timer that updates a timestamp every second,

@@ -1,22 +1,22 @@
 import Foundation
 import CloudKit
 
-struct Device: Identifiable, Equatable {
-    var id: UUID
-    var name: String
-    var totalTimeToday: TimeInterval
-    var sessionStartTime: Date?
-    var weeklyStats: [Date: TimeInterval]
-    var monthlyStats: [Date: TimeInterval]
-    var lastStopTime: Date? // When the device was last removed
-    var notifiedForNotWearing: Bool = false // Whether we've sent a notification for not wearing
-    var notifiedForLongWearing: Bool = false // Whether we've sent a notification for wearing too long
+public struct Device: Identifiable, Equatable {
+    public var id: UUID
+    public var name: String
+    public var totalTimeToday: TimeInterval
+    public var sessionStartTime: Date?
+    public var weeklyStats: [Date: TimeInterval]
+    public var monthlyStats: [Date: TimeInterval]
+    public var lastStopTime: Date? // When the device was last removed
+    public var notifiedForNotWearing: Bool = false // Whether we've sent a notification for not wearing
+    public var notifiedForLongWearing: Bool = false // Whether we've sent a notification for wearing too long
     
-    var isRunning: Bool {
+    public var isRunning: Bool {
         sessionStartTime != nil
     }
     
-    init(id: UUID = UUID(), name: String, totalTimeToday: TimeInterval = 0, sessionStartTime: Date? = nil, lastStopTime: Date? = nil) {
+    public init(id: UUID = UUID(), name: String, totalTimeToday: TimeInterval = 0, sessionStartTime: Date? = nil, lastStopTime: Date? = nil) {
         self.id = id
         self.name = name
         self.totalTimeToday = totalTimeToday
@@ -26,16 +26,16 @@ struct Device: Identifiable, Equatable {
         self.monthlyStats = [:]
     }
     
-    func currentSessionTime() -> TimeInterval {
+    public func currentSessionTime() -> TimeInterval {
         guard let startTime = sessionStartTime else { return 0 }
         return Date().timeIntervalSince(startTime)
     }
     
-    func totalTime() -> TimeInterval {
+    public func totalTime() -> TimeInterval {
         totalTimeToday + (isRunning ? currentSessionTime() : 0)
     }
     
-    func averageTimePerDay(timeFrame: TimeFrame) -> TimeInterval {
+    public func averageTimePerDay(timeFrame: TimeFrame) -> TimeInterval {
         switch timeFrame {
         case .week:
             let totalWeekTime = weeklyStats.values.reduce(0, +)
@@ -46,7 +46,7 @@ struct Device: Identifiable, Equatable {
         }
     }
     
-    func totalTime(timeFrame: TimeFrame) -> TimeInterval {
+    public func totalTime(timeFrame: TimeFrame) -> TimeInterval {
         switch timeFrame {
         case .week:
             return weeklyStats.values.reduce(0, +)
@@ -55,14 +55,15 @@ struct Device: Identifiable, Equatable {
         }
     }
     
-    enum TimeFrame {
+    public enum TimeFrame {
         case week
         case month
     }
 }
 
+// MARK: - CloudKit Extension
 extension Device {
-    func toCKRecord() -> CKRecord {
+    public func toCKRecord() -> CKRecord {
         let record = CKRecord(recordType: "Device", recordID: CKRecord.ID(recordName: id.uuidString))
         record["name"] = name
         record["totalTimeToday"] = totalTimeToday
@@ -83,7 +84,7 @@ extension Device {
         return record
     }
     
-    static func fromCKRecord(_ record: CKRecord) -> Device? {
+    public static func fromCKRecord(_ record: CKRecord) -> Device? {
         let idString = record.recordID.recordName
         guard 
             let id = UUID(uuidString: idString),

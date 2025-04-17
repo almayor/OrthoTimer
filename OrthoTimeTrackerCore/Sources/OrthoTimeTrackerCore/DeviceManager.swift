@@ -2,19 +2,23 @@ import Foundation
 import Combine
 import CloudKit
 import SwiftUI
+#if os(iOS)
 import UserNotifications
+#endif
 
-class DeviceManager: ObservableObject {
-    @Published var devices: [Device] = []
-    @Published var currentTimestamp: Date = Date()
+public class DeviceManager: ObservableObject {
+    @Published public var devices: [Device] = []
+    @Published public var currentTimestamp: Date = Date()
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
     private let cloudKitContainer = CKContainer.default()
     private var lastMidnightCheck = Date()
     
-    init() {
-        // Request notification permission
+    public init() {
+        #if os(iOS)
+        // Request notification permission on iOS
         requestNotificationPermission()
+        #endif
         
         setupTimer()
         fetchDevices()
@@ -24,11 +28,14 @@ class DeviceManager: ObservableObject {
             .autoconnect()
             .sink { [weak self] _ in
                 self?.checkForMidnightTransition()
+                #if os(iOS)
                 self?.checkNotificationConditions()
+                #endif
             }
             .store(in: &cancellables)
     }
     
+    #if os(iOS)
     // Request permission to send notifications
     private func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -115,6 +122,7 @@ class DeviceManager: ObservableObject {
         
         UNUserNotificationCenter.current().add(request)
     }
+    #endif
     
     private func setupTimer() {
         // Create a timer that updates a timestamp every second,
@@ -129,13 +137,13 @@ class DeviceManager: ObservableObject {
         RunLoop.current.add(timer!, forMode: .common)
     }
     
-    func addDevice(name: String) {
+    public func addDevice(name: String) {
         let device = Device(name: name)
         devices.append(device)
         saveDevice(device)
     }
     
-    func deleteDevice(at indexSet: IndexSet) {
+    public func deleteDevice(at indexSet: IndexSet) {
         for index in indexSet {
             let device = devices[index]
             deleteDeviceFromCloud(device)
@@ -143,14 +151,14 @@ class DeviceManager: ObservableObject {
         }
     }
     
-    func updateDevice(_ updatedDevice: Device) {
+    public func updateDevice(_ updatedDevice: Device) {
         if let index = devices.firstIndex(where: { $0.id == updatedDevice.id }) {
             devices[index] = updatedDevice
             saveDevice(updatedDevice)
         }
     }
     
-    func toggleTimer(for device: Device) {
+    public func toggleTimer(for device: Device) {
         var updatedDevice = device
         let now = Date()
         
