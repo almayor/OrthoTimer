@@ -57,15 +57,24 @@ struct MenuBarView: View {
             
             Divider()
             
-            // Command buttons
-            Button("Open Main Window") {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "OrthoTimeTracker")
+            // Command buttons side by side
+            HStack(spacing: 10) {
+                Button("Open Main Window") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "main")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                
+                Spacer()
+                
+                Button("Quit") {
+                    NSApp.terminate(nil)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
             }
-            
-            Button("Quit") {
-                NSApp.terminate(nil)
-            }
+            .padding(.top, 5)
         }
         .padding()
         .frame(width: 250)

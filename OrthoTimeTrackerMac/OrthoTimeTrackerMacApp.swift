@@ -18,7 +18,7 @@ struct OrthoTimeTrackerMacApp: App {
     }
     
     var body: some Scene {
-        WindowGroup("OrthoTimeTracker") {
+        WindowGroup(id: "main", content: {
             ContentView()
                 .environmentObject(deviceManager)
                 .environmentObject(menuBarManager)
@@ -37,9 +37,18 @@ struct OrthoTimeTrackerMacApp: App {
                 .environmentObject(menuBarManager)
                 .accentColor(OrthoTimeTrackerCore.accentColor)
         } label: {
-            if let device = menuBarManager.selectedDevice, device.isRunning {
-                Label(menuBarManager.timerText, systemImage: "timer.circle.fill")
+            // Always show the timer text in the menu bar
+            if let device = menuBarManager.selectedDevice {
+                // Show timer with device name and icon
+                HStack(spacing: 4) {
+                    Image(systemName: device.isRunning ? "timer.circle.fill" : "timer.circle")
+                        .foregroundColor(device.isRunning ? OrthoTimeTrackerCore.accentColor : nil)
+                    Text(device.name + ": " + menuBarManager.timerText)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(device.isRunning ? OrthoTimeTrackerCore.accentColor : nil)
+                }
             } else {
+                // No device selected
                 Label("OrthoTimer", systemImage: "timer.circle")
             }
         }
