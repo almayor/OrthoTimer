@@ -11,7 +11,7 @@ struct ContentView: View {
         NavigationSplitView {
             List(selection: $selectedDeviceID) {
                 ForEach(deviceManager.devices) { device in
-                    DeviceRow(device: device)
+                    DeviceRow(device: device, selection: $selectedDeviceID)
                         .tag(device.id)
                 }
                 .onDelete(perform: deleteDevices)
@@ -74,12 +74,18 @@ struct DeviceRow: View {
     let device: OTTDevice
     @EnvironmentObject private var deviceManager: OTTDeviceManager
     
+    // Get the current selection from list
+    @Binding var selection: UUID?
+    
     var body: some View {
         // Observe timestamp changes
         let _ = deviceManager.currentTimestamp
         
         // Get the latest device data
         let currentDevice = deviceManager.devices.first(where: { $0.id == device.id }) ?? device
+        
+        // Check if this row is selected
+        let isSelected = selection == currentDevice.id
         
         return HStack {
             VStack(alignment: .leading) {
@@ -89,14 +95,17 @@ struct DeviceRow: View {
                 Text(TimeUtils.formattedTime(currentDevice.totalTime()))
                     .font(.subheadline)
                     .fontWeight(currentDevice.isRunning ? .bold : .regular) 
-                    .foregroundColor(currentDevice.isRunning ? .green : .secondary)
+                    // Use different color based on selection state
+                    .foregroundColor(isSelected 
+                        ? (currentDevice.isRunning ? .white : .primary) // Selected: white when active
+                        : (currentDevice.isRunning ? Color(red: 0.0, green: 0.3, blue: 0.7) : .secondary)) // Not selected: dark blue when active
             }
             
             Spacer()
             
             if currentDevice.isRunning {
                 Image(systemName: "timer.circle.fill")
-                    .foregroundColor(.green)
+                    .foregroundColor(isSelected ? .white : Color(red: 0.0, green: 0.3, blue: 0.7))
             }
         }
         .padding(.vertical, 4)
