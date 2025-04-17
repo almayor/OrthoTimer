@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct WidgetPreviewView: View {
-    @EnvironmentObject private var deviceManager: DeviceManager
+    @EnvironmentObject private var deviceManager: OTTDeviceManager
     
     var body: some View {
         ScrollView {
@@ -52,7 +52,7 @@ struct WidgetPreviewView: View {
     }
     
     // Single device preview (small widget)
-    private func singleDevicePreview(device: Device) -> some View {
+    private func singleDevicePreview(device: OTTDevice) -> some View {
         ZStack {
             Color.accentColor.opacity(0.1)
             
@@ -92,7 +92,7 @@ struct WidgetPreviewView: View {
     }
     
     // Multiple devices preview (medium/large widget)
-    private func multipleDevicesPreview(devices: [Device]) -> some View {
+    private func multipleDevicesPreview(devices: [OTTDevice]) -> some View {
         ZStack {
             Color.accentColor.opacity(0.1)
             
@@ -127,7 +127,7 @@ struct WidgetPreviewView: View {
     }
     
     // Device row for multiple devices preview
-    private func deviceRowPreview(device: Device) -> some View {
+    private func deviceRowPreview(device: OTTDevice) -> some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(device.name)
@@ -190,10 +190,10 @@ struct WidgetPreviewView: View {
 }
 
 #Preview {
-    let manager = DeviceManager()
+    let manager = OTTDeviceManager()
     // Add some sample devices for the preview
-    let device1 = Device(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date())
-    let device2 = Device(name: "Invisalign", totalTimeToday: 14400)
+    let device1 = OTTDevice(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date())
+    let device2 = OTTDevice(name: "Invisalign", totalTimeToday: 14400)
     
     // Since we can't directly modify manager.devices, we need a mock
     return NavigationView {

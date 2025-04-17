@@ -3,9 +3,10 @@ import Combine
 import CloudKit
 import SwiftUI
 import UserNotifications
+import OrthoTimeTrackerCore
 
 class DeviceManager: ObservableObject {
-    @Published var devices: [Device] = []
+    @Published var devices: [OTTDevice] = []
     @Published var currentTimestamp: Date = Date()
     private var timer: Timer?
     private var cancellables = Set<AnyCancellable>()
@@ -85,7 +86,7 @@ class DeviceManager: ObservableObject {
     }
     
     // Send notification for not wearing device for 3+ hours
-    private func sendNotWearingNotification(for device: Device) {
+    private func sendNotWearingNotification(for device: OTTDevice) {
         let content = UNMutableNotificationContent()
         content.title = "Time to wear your \(device.name)"
         content.body = "You haven't worn your \(device.name) for over 3 hours. Put it on to stay on track!"
@@ -101,7 +102,7 @@ class DeviceManager: ObservableObject {
     }
     
     // Send notification for wearing device too long (12+ hours)
-    private func sendWearingTooLongNotification(for device: Device) {
+    private func sendWearingTooLongNotification(for device: OTTDevice) {
         let content = UNMutableNotificationContent()
         content.title = "Time for a break from \(device.name)"
         content.body = "You've been wearing your \(device.name) for over 12 hours. Consider taking a break to eat or clean it."
@@ -130,7 +131,7 @@ class DeviceManager: ObservableObject {
     }
     
     func addDevice(name: String) {
-        let device = Device(name: name)
+        let device = OTTDevice(name: name)
         devices.append(device)
         saveDevice(device)
     }
@@ -143,14 +144,14 @@ class DeviceManager: ObservableObject {
         }
     }
     
-    func updateDevice(_ updatedDevice: Device) {
+    func updateDevice(_ updatedDevice: OTTDevice) {
         if let index = devices.firstIndex(where: { $0.id == updatedDevice.id }) {
             devices[index] = updatedDevice
             saveDevice(updatedDevice)
         }
     }
     
-    func toggleTimer(for device: Device) {
+    func toggleTimer(for device: OTTDevice) {
         var updatedDevice = device
         let now = Date()
         
@@ -230,7 +231,7 @@ class DeviceManager: ObservableObject {
         }
     }
     
-    private func cleanupOldStats(for device: inout Device, calendar: Calendar) {
+    private func cleanupOldStats(for device: inout OTTDevice, calendar: Calendar) {
         let today = calendar.startOfDay(for: Date())
         
         // Keep only the last 7 days for weekly stats
@@ -256,8 +257,8 @@ class DeviceManager: ObservableObject {
         // For simulator testing, use some sample data instead of CloudKit
         #if targetEnvironment(simulator)
         // Create some sample devices for testing
-        let device1 = Device(name: "Retainer")
-        let device2 = Device(name: "Invisalign", totalTimeToday: 3600) // 1 hour
+        let device1 = OTTDevice(name: "Retainer")
+        let device2 = OTTDevice(name: "Invisalign", totalTimeToday: 3600) // 1 hour
         devices = [device1, device2]
         checkForMidnightTransition()
         return
@@ -275,7 +276,7 @@ class DeviceManager: ObservableObject {
             
             guard let results = results else { return }
             
-            let devices = results.compactMap { Device.fromCKRecord($0) }
+            let devices = results.compactMap { OTTDevice.fromCKRecord($0) }
             
             DispatchQueue.main.async {
                 self?.devices = devices
@@ -284,7 +285,7 @@ class DeviceManager: ObservableObject {
         }
     }
     
-    private func saveDevice(_ device: Device) {
+    private func saveDevice(_ device: OTTDevice) {
         #if targetEnvironment(simulator)
         // Skip CloudKit operations in simulator
         print("Skipping CloudKit save in simulator")
@@ -301,7 +302,7 @@ class DeviceManager: ObservableObject {
         #endif
     }
     
-    private func deleteDeviceFromCloud(_ device: Device) {
+    private func deleteDeviceFromCloud(_ device: OTTDevice) {
         #if targetEnvironment(simulator)
         // Skip CloudKit operations in simulator
         print("Skipping CloudKit delete in simulator")

@@ -1,6 +1,7 @@
 import WidgetKit
 import SwiftUI
 import CloudKit
+import OrthoTimeTrackerCore
 
 // MARK: - Widget Configuration
 
@@ -27,22 +28,22 @@ struct Provider: TimelineProvider {
     }
     
     // Sample device for previews and placeholders
-    private func sampleDevice() -> Device {
-        var device = Device(name: "Retainer")
+    private func sampleDevice() -> OTTDevice {
+        var device = OTTDevice(name: "Retainer")
         device.totalTimeToday = 3600 * 2 + 35 * 60 // 2h 35m
         device.sessionStartTime = Date() // Active
         return device
     }
     
     // Create entries for the next hour, updating every minute
-    private func createTimelineEntries(startDate: Date, devices: [Device]) -> [SimpleEntry] {
+    private func createTimelineEntries(startDate: Date, devices: [OTTDevice]) -> [SimpleEntry] {
         var entries: [SimpleEntry] = []
         let calendar = Calendar.current
         
         // Create entries for the next hour, one per minute
         for minuteOffset in 0..<60 {
             let entryDate = calendar.date(byAdding: .minute, value: minuteOffset, to: startDate)!
-            var updatedDevices: [Device] = []
+            var updatedDevices: [OTTDevice] = []
             
             // Update time calculations for each future entry if timer is running
             for device in devices {
@@ -61,7 +62,7 @@ struct Provider: TimelineProvider {
     }
     
     // Fetch devices from CloudKit
-    private func fetchDevices(completion: @escaping ([Device]) -> Void) {
+    private func fetchDevices(completion: @escaping ([OTTDevice]) -> Void) {
         let container = CKContainer.default()
         let privateDB = container.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
@@ -73,7 +74,7 @@ struct Provider: TimelineProvider {
                 return
             }
             
-            let devices = results?.compactMap { Device.fromCKRecord($0) } ?? []
+            let devices = results?.compactMap { OTTDevice.fromCKRecord($0) } ?? []
             completion(devices)
         }
     }
@@ -81,7 +82,7 @@ struct Provider: TimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let devices: [Device]
+    let devices: [OTTDevice]
 }
 
 // MARK: - Widget Views
@@ -111,7 +112,7 @@ struct TimeTrackerWidgetEntryView: View {
 }
 
 struct SingleDeviceWidgetView: View {
-    var device: Device
+    var device: OTTDevice
     
     var body: some View {
         ZStack {
@@ -153,7 +154,7 @@ struct SingleDeviceWidgetView: View {
 }
 
 struct MultipleDevicesWidgetView: View {
-    var devices: [Device]
+    var devices: [OTTDevice]
     
     var body: some View {
         ZStack {
@@ -191,7 +192,7 @@ struct MultipleDevicesWidgetView: View {
 }
 
 struct DeviceRowWidgetView: View {
-    var device: Device
+    var device: OTTDevice
     
     var body: some View {
         HStack(spacing: 12) {
@@ -267,9 +268,9 @@ struct TimeTrackerWidget: Widget {
 struct TimeTrackerWidget_Previews: PreviewProvider {
     static var previews: some View {
         let sampleDevices = [
-            Device(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date()),
-            Device(name: "Invisalign", totalTimeToday: 14400),
-            Device(name: "Nightguard", totalTimeToday: 3600, sessionStartTime: Date())
+            OTTDevice(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date()),
+            OTTDevice(name: "Invisalign", totalTimeToday: 14400),
+            OTTDevice(name: "Nightguard", totalTimeToday: 3600, sessionStartTime: Date())
         ]
         let entry = SimpleEntry(date: Date(), devices: sampleDevices)
         

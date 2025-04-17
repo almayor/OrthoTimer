@@ -69,8 +69,8 @@ struct DeviceDetailView: View {
 }
 
 struct StatisticsView: View {
-    let device: Device
-    @EnvironmentObject private var deviceManager: DeviceManager
+    let device: OTTDevice
+    @EnvironmentObject private var deviceManager: OTTDeviceManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -118,8 +118,8 @@ struct StatRow: View {
 struct DeviceDetailView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DeviceDetailView(device: Device(name: "Retainer"))
-                .environmentObject(DeviceManager())
+            DeviceDetailView(device: OTTDevice(name: "Retainer"))
+                .environmentObject(OTTDeviceManager())
         }
     }
 }
