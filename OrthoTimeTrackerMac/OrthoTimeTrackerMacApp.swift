@@ -110,12 +110,13 @@ struct MenuBarLabel: View {
         if let device = menuBarManager.selectedDevice {
             HStack(spacing: 4) {
                 Image(systemName: "timer.circle")
-                    .foregroundColor(device.isRunning ? OrthoTimeTrackerCore.accentColor : nil)
+                    .foregroundColor(device.isRunning ? Color.green : nil)
                 
                 // Always get the freshest time
                 Text(menuBarManager.currentTimeForSelectedDevice())
                     .font(.system(.body, design: .monospaced))
-                    .foregroundColor(device.isRunning ? OrthoTimeTrackerCore.accentColor : nil)
+                    .fontWeight(device.isRunning ? .bold : .regular)
+                    .foregroundColor(device.isRunning ? Color.green : nil)
             }
             .onAppear {
                 // Force an update on appear

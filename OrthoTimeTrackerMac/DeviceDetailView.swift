@@ -60,7 +60,7 @@ struct DeviceDetailView: View {
                     
                     Text(TimeUtils.formattedTime(currentDevice.totalTime()))
                         .font(.system(size: 60, weight: .bold, design: .monospaced))
-                        .foregroundColor(currentDevice.isRunning ? .accentColor : .primary)
+                        .foregroundColor(currentDevice.isRunning ? Color(red: 0.0, green: 0.3, blue: 0.7) : .primary)
                     
                     Button(action: {
                         // Always use the latest device reference
@@ -75,7 +75,7 @@ struct DeviceDetailView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 30)
                             .padding(.vertical, 10)
-                            .background(currentDevice.isRunning ? Color.red : OrthoTimeTrackerCore.accentColor)
+                            .background(currentDevice.isRunning ? Color.red : Color(red: 0.0, green: 0.3, blue: 0.7))
                             .cornerRadius(10)
                     }
                     .buttonStyle(BorderlessButtonStyle())

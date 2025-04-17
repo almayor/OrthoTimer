@@ -46,10 +46,11 @@ struct MenuBarView: View {
                             menuBarManager.updateTimerText()
                         }
                     
-                    // Always get the latest time 
+                    // Always get the latest time - with a darker color for better readability
                     Text(menuBarManager.currentTimeForSelectedDevice())
                         .font(.system(.title, design: .monospaced))
-                        .foregroundColor(device.isRunning ? .accentColor : .primary)
+                        .foregroundColor(device.isRunning ? Color(red: 0.0, green: 0.3, blue: 0.7) : .primary)
+                        .fontWeight(device.isRunning ? .bold : .regular)
                     
                     HStack(spacing: 20) {
                         Button(action: {
@@ -64,7 +65,7 @@ struct MenuBarView: View {
                                 .frame(width: 80)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(device.isRunning ? .red : .accentColor)
+                        .tint(device.isRunning ? .red : Color(red: 0.0, green: 0.3, blue: 0.7))
                     }
                     .padding(.top, 5)
                 }

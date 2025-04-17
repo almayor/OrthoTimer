@@ -88,14 +88,15 @@ struct DeviceRow: View {
                 
                 Text(TimeUtils.formattedTime(currentDevice.totalTime()))
                     .font(.subheadline)
-                    .foregroundColor(currentDevice.isRunning ? .accentColor : .secondary)
+                    .fontWeight(currentDevice.isRunning ? .bold : .regular) 
+                    .foregroundColor(currentDevice.isRunning ? .green : .secondary)
             }
             
             Spacer()
             
             if currentDevice.isRunning {
                 Image(systemName: "timer.circle.fill")
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.green)
             }
         }
         .padding(.vertical, 4)
