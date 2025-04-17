@@ -6,6 +6,11 @@ import OrthoTimeTrackerCore
 struct OrthoTimeTrackerApp: App {
     @StateObject private var deviceManager = OTTDeviceManager()
     
+    init() {
+        // Initialize core framework
+        OrthoTimeTrackerCore.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             DeviceListView()

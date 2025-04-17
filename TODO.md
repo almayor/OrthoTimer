@@ -47,6 +47,9 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 
 ## CloudKit Integration
 
+- [ ] **HIGH PRIORITY**: Re-enable CloudKit after Apple Developer Program enrollment is approved
+- [ ] Update conditional compilation to enable CloudKit on both iOS and macOS
+- [ ] Configure CloudKit containers and entitlements properly
 - [ ] Implement proper error handling for CloudKit operations
 - [ ] Add conflict resolution for simultaneous edits
 - [ ] Create sync status indicators

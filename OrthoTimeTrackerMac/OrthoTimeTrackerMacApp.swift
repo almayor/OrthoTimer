@@ -4,10 +4,15 @@ import OrthoTimeTrackerCore
 
 @main
 struct OrthoTimeTrackerMacApp: App {
+    // Initialize with the core package's managers
     @StateObject private var deviceManager = OTTDeviceManager()
     @StateObject private var menuBarManager = OTTMenuBarManager()
     
+    // Configure app with defaults
     init() {
+        // Initialize core framework
+        OrthoTimeTrackerCore.configure()
+        
         // Set the accent color
         NSApplication.shared.appearance = NSAppearance(named: .aqua)
     }

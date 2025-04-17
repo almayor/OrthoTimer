@@ -15,13 +15,18 @@ public class DeviceManager: ObservableObject {
     private var lastMidnightCheck = Date()
     
     public init() {
-        // Try to initialize CloudKit container, but make it optional
-        do {
-            cloudKitContainer = CKContainer.default()
-        } catch {
-            print("CloudKit container initialization failed: \(error.localizedDescription)")
-            cloudKitContainer = nil
-        }
+        // IMPORTANT: Re-enable CloudKit after Apple Developer Program enrollment is approved
+        // TODO: Remove these conditional checks once Developer Program is active
+        
+        // Only try to use CloudKit on iOS in non-simulator, non-debug builds
+        #if os(iOS) && !targetEnvironment(simulator) && !DEBUG
+        // Only initialize CloudKit if we're on iOS with Developer Program
+        cloudKitContainer = CKContainer.default()
+        #else
+        // Don't even try to initialize CloudKit in other scenarios
+        cloudKitContainer = nil
+        print("CloudKit disabled - using local data only")
+        #endif
         
         #if os(iOS)
         // Request notification permission on iOS
@@ -30,13 +35,15 @@ public class DeviceManager: ObservableObject {
         
         setupTimer()
         
-        // Always start with sample data to ensure we have something to show
+        // Always start with sample data first
         loadSampleData()
         
-        // Then try to fetch from CloudKit if available
+        // Only attempt to fetch from CloudKit on iOS with Developer Program
+        #if os(iOS) && !targetEnvironment(simulator) && !DEBUG
         if cloudKitContainer != nil {
             fetchDevices()
         }
+        #endif
         
         // Check for midnight transition and notification conditions
         Timer.publish(every: 60, on: .main, in: .common)
