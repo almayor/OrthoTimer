@@ -1,5 +1,6 @@
 import SwiftUI
 import OrthoTimeTrackerCore
+import AppKit
 
 struct ContentView: View {
     @EnvironmentObject private var deviceManager: OTTDeviceManager
@@ -37,10 +38,10 @@ struct ContentView: View {
                     Text("Add New Device")
                         .font(.headline)
                     
-                    TextField("Device Name", text: $newDeviceName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(width: 250, height: 30) // Fixed height to prevent text being cut off
-                        .padding(.vertical, 4) // Extra padding for better appearance
+                    // Import and use the custom NSTextField from DeviceDetailView
+                    NSTextFieldRepresentable(text: $newDeviceName)
+                        .frame(width: 250, minHeight: 30)
+                        .padding(.vertical, 4)
                     
                     HStack {
                         Button("Cancel") {
@@ -118,5 +119,50 @@ struct DeviceRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+// Custom NSTextField wrapper for better control over appearance and behavior
+// Duplicated from DeviceDetailView for simplicity
+struct NSTextFieldRepresentable: NSViewRepresentable {
+    @Binding var text: String
+    var onCommit: (() -> Void)? = nil
+    
+    func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField()
+        textField.delegate = context.coordinator
+        textField.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        textField.focusRingType = .none
+        textField.bezelStyle = .roundedBezel
+        textField.lineBreakMode = .byTruncatingTail
+        textField.cell?.wraps = false
+        textField.cell?.scrollable = true
+        textField.cell?.usesSingleLineMode = false
+        textField.maximumNumberOfLines = 1
+        textField.cell?.sendsActionOnEndEditing = true
+        return textField
+    }
+    
+    func updateNSView(_ nsView: NSTextField, context: Context) {
+        nsView.stringValue = text
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: NSTextFieldRepresentable
+        
+        init(_ parent: NSTextFieldRepresentable) {
+            self.parent = parent
+        }
+        
+        func controlTextDidEndEditing(_ obj: Notification) {
+            if let textField = obj.object as? NSTextField {
+                parent.text = textField.stringValue
+                parent.onCommit?()
+            }
+        }
     }
 }

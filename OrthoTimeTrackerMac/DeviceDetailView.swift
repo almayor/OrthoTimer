@@ -1,5 +1,6 @@
 import SwiftUI
 import OrthoTimeTrackerCore
+import AppKit
 
 struct DeviceDetailView: View {
     let device: OTTDevice
@@ -18,13 +19,12 @@ struct DeviceDetailView: View {
                 // Header
                 HStack {
                     if isEditingName {
-                        TextField("Device Name", text: $deviceName, onCommit: {
+                        // Using NSTextField directly for better control
+                        NSTextFieldRepresentable(text: $deviceName, onCommit: {
                             updateDeviceName()
                         })
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(minHeight: 40)
                         .font(.title)
-                        .frame(height: 40) // Fixed height to prevent text being cut off
-                        .padding(.vertical, 4) // Extra padding for better appearance
                         
                         Button("Save") {
                             updateDeviceName()
@@ -37,6 +37,8 @@ struct DeviceDetailView: View {
                         Spacer()
                         
                         Button(action: {
+                            // Reset to current device name before entering edit mode
+                            deviceName = device.name
                             isEditingName = true
                         }) {
                             Image(systemName: "pencil")
@@ -144,6 +146,50 @@ struct StatRow: View {
             Text(value)
                 .font(.system(.body, design: .monospaced))
                 .fontWeight(.medium)
+        }
+    }
+}
+
+// Custom NSTextField wrapper for better control over appearance and behavior
+struct NSTextFieldRepresentable: NSViewRepresentable {
+    @Binding var text: String
+    var onCommit: (() -> Void)?
+    
+    func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField()
+        textField.delegate = context.coordinator
+        textField.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .title))
+        textField.focusRingType = .none
+        textField.bezelStyle = .roundedBezel
+        textField.lineBreakMode = .byTruncatingTail
+        textField.cell?.wraps = false
+        textField.cell?.scrollable = true
+        textField.cell?.usesSingleLineMode = false
+        textField.maximumNumberOfLines = 1
+        textField.cell?.sendsActionOnEndEditing = true
+        return textField
+    }
+    
+    func updateNSView(_ nsView: NSTextField, context: Context) {
+        nsView.stringValue = text
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, NSTextFieldDelegate {
+        var parent: NSTextFieldRepresentable
+        
+        init(_ parent: NSTextFieldRepresentable) {
+            self.parent = parent
+        }
+        
+        func controlTextDidEndEditing(_ obj: Notification) {
+            if let textField = obj.object as? NSTextField {
+                parent.text = textField.stringValue
+                parent.onCommit?()
+            }
         }
     }
 }
