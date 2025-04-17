@@ -9,21 +9,29 @@ struct ContentView: View {
     
     var body: some View {
         NavigationSplitView {
-            List(selection: $selectedDeviceID) {
-                ForEach(deviceManager.devices) { device in
-                    DeviceRow(device: device, selection: $selectedDeviceID)
-                        .tag(device.id)
+            VStack {
+                List(selection: $selectedDeviceID) {
+                    ForEach(deviceManager.devices) { device in
+                        DeviceRow(device: device, selection: $selectedDeviceID)
+                            .tag(device.id)
+                    }
+                    .onDelete(perform: deleteDevices)
                 }
-                .onDelete(perform: deleteDevices)
+                
+                // Add Device button at the bottom of the left pane
+                Button(action: { showingAddDevice = true }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add Device")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(.borderedProminent)
+                .padding([.horizontal, .bottom], 12)
             }
             .navigationTitle("Orthodontic Devices")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddDevice = true }) {
-                        Label("Add Device", systemImage: "plus")
-                    }
-                }
-            }
+            // Removed from toolbar since we now have a dedicated button
             .sheet(isPresented: $showingAddDevice) {
                 VStack(spacing: 20) {
                     Text("Add New Device")
