@@ -106,6 +106,11 @@ struct MenuBarView: View {
         .onAppear {
             // Force an update when the menu appears
             menuBarManager.updateTimerText()
+            
+            // Auto-select if there's only one device
+            if deviceManager.devices.count == 1 && menuBarManager.selectedDevice == nil {
+                menuBarManager.selectedDevice = deviceManager.devices[0]
+            }
         }
     }
 }

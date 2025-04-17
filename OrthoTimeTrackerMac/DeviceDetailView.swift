@@ -1,19 +1,48 @@
 import SwiftUI
 import OrthoTimeTrackerCore
 import AppKit
+import Combine
 
 // View model to handle device detail state
 class DeviceDetailViewModel: ObservableObject {
     @Published var isEditingName: Bool = false
     @Published var deviceName: String = ""
+    private var originalDeviceName: String = "" // Keep track of original name
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        // Subscribe to changes from EditModeManager
+        EditModeManager.shared.editModeSubject
+            .receive(on: RunLoop.main)
+            .sink { [weak self] isEditing in
+                // When selection changes, this will receive 'false'
+                if !isEditing {
+                    // Cancel editing without saving when switching devices
+                    self?.cancelEditing()
+                }
+            }
+            .store(in: &cancellables)
+    }
     
     func resetEditState() {
         isEditingName = false
     }
     
     func startEditing(device: OTTDevice) {
+        print("Starting edit for device: \(device.name)")
         deviceName = device.name
+        originalDeviceName = device.name // Save original name
         isEditingName = true
+    }
+    
+    func cancelEditing() {
+        // Revert to original name without saving
+        deviceName = originalDeviceName
+        isEditingName = false
+    }
+    
+    deinit {
+        cancellables.forEach { $0.cancel() }
     }
 }
 
@@ -28,6 +57,11 @@ struct DeviceDetailView: View {
         return device.id.uuidString
     }
     
+    // Debug helper to track changes
+    private func debug(_ message: String) {
+        print("DeviceDetailView: \(message)")
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -38,14 +72,22 @@ struct DeviceDetailView: View {
                         CustomTextField(
                             text: $viewModel.deviceName,
                             onCommit: {
-                                updateDeviceName()
+                                // Do nothing on commit, only save with button
                             },
                             font: NSFont.systemFont(ofSize: 18) // Larger title-like font size
                         )
                         .frame(height: 40)
                         
-                        Button("Save") {
-                            updateDeviceName()
+                        HStack(spacing: 8) {
+                            Button("Cancel") {
+                                viewModel.cancelEditing()
+                            }
+                            .keyboardShortcut(.escape, modifiers: [])
+                            
+                            Button("Save") {
+                                updateDeviceName()
+                            }
+                            .keyboardShortcut(.return, modifiers: [])
                         }
                     } else {
                         Text(device.name)
@@ -118,11 +160,21 @@ struct DeviceDetailView: View {
     }
     
     private func updateDeviceName() {
+        debug("Saving name change: \(device.name) -> \(viewModel.deviceName)")
+        
         if !viewModel.deviceName.isEmpty && viewModel.deviceName != device.name {
+            // Create a copy of the device with the updated name
             var updatedDevice = device
             updatedDevice.name = viewModel.deviceName
+            
+            // Update the device in the manager
+            debug("Updating device name in manager")
             deviceManager.updateDevice(updatedDevice)
+        } else {
+            debug("No update needed: name unchanged or empty")
         }
+        
+        // End editing mode
         viewModel.isEditingName = false
     }
 }

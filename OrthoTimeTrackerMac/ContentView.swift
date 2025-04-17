@@ -1,17 +1,44 @@
 import SwiftUI
 import OrthoTimeTrackerCore
 import AppKit
+import Combine
+
+// Global state manager for edit mode
+final class EditModeManager {
+    static let shared = EditModeManager()
+    
+    // Publisher for edit mode changes
+    let editModeSubject = PassthroughSubject<Bool, Never>()
+    
+    // Called when device selection changes
+    func deviceSelectionChanged() {
+        // Cancel any active editing
+        editModeSubject.send(false)
+    }
+}
 
 struct ContentView: View {
     @EnvironmentObject private var deviceManager: OTTDeviceManager
     @State private var selectedDeviceID: UUID?
+    @State private var previousDeviceID: UUID? // To track device selection changes
     @State private var showingAddDevice = false
     @State private var newDeviceName = ""
     
     var body: some View {
         NavigationSplitView {
             VStack {
-                List(selection: $selectedDeviceID) {
+                // When selection changes, notify the edit mode manager
+                List(selection: Binding(
+                    get: { self.selectedDeviceID },
+                    set: { newValue in
+                        // Check if selection actually changed
+                        if newValue != self.selectedDeviceID {
+                            // Cancel edit mode when selection changes
+                            EditModeManager.shared.deviceSelectionChanged()
+                        }
+                        self.selectedDeviceID = newValue
+                    }
+                )) {
                     ForEach(deviceManager.devices) { device in
                         DeviceRow(device: device, selection: $selectedDeviceID)
                             .tag(device.id)

@@ -30,6 +30,9 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 - [x] Fix menu bar timer updates in real-time
 - [x] Increase default window size for better statistics visibility
 - [x] Improve color scheme for better readability
+- [x] Fix the device name editing issues
+- [x] Ensure a device is auto-selected in the menu bar when there's only one device
+- [ ] Make app run exclusively in the menu bar (no dock icon)
 - [ ] Convert SVG icon to SF Symbol for better system integration
 - [ ] Add keyboard shortcuts for common actions
 - [ ] Create a more comprehensive statistics view

@@ -26,6 +26,8 @@ public class MenuBarManager: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 DispatchQueue.main.async {
+                    // Check for auto-selection of a single device
+                    self?.checkForSingleDevice()
                     self?.updateTimerText()
                     // Send our own change notification to ensure UI updates
                     self?.objectWillChange.send()
@@ -43,9 +45,21 @@ public class MenuBarManager: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+        
+        // Do initial auto-selection
+        checkForSingleDevice()
             
         // Initial update
         updateTimerText()
+    }
+    
+    // Auto-select a device if there's only one
+    private func checkForSingleDevice() {
+        guard let deviceManager = deviceManager else { return }
+        
+        if deviceManager.devices.count == 1 && selectedDevice == nil {
+            selectedDevice = deviceManager.devices[0]
+        }
     }
     
     public func updateTimerText() {
