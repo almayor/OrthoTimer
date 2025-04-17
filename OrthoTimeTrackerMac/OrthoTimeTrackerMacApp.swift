@@ -109,8 +109,9 @@ struct MenuBarLabel: View {
         
         if let device = menuBarManager.selectedDevice {
             HStack(spacing: 4) {
-                Image(systemName: "timer.circle")
-                    .foregroundColor(device.isRunning ? Color.green : nil)
+                // Go back to a system icon for now to ensure menu bar works
+                Image(systemName: "timer.circle.fill")
+                    .foregroundColor(device.isRunning ? Color(red: 0.0, green: 0.3, blue: 0.7) : nil)
                 
                 // Always get the freshest time
                 Text(menuBarManager.currentTimeForSelectedDevice())
@@ -123,7 +124,7 @@ struct MenuBarLabel: View {
                 menuBarManager.updateTimerText()
             }
         } else {
-            Label("OrthoTimer", systemImage: "timer.circle")
+            Label("OrthoTimer", systemImage: "timer.circle.fill")
         }
     }
 }
@@ -138,7 +139,7 @@ struct OrthoTimeTrackerMacApp: App {
             ContentView()
                 .environmentObject(appDelegate.deviceManager)
                 .environmentObject(appDelegate.menuBarManager)
-                .frame(minWidth: 600, minHeight: 400)
+                .frame(minWidth: 800, minHeight: 600)
                 .accentColor(OrthoTimeTrackerCore.accentColor)
                 .onAppear {
                     // On first appearance, store a reference to the window

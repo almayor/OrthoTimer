@@ -27,11 +27,15 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 
 ## macOS Improvements
 
+- [x] Fix menu bar timer updates in real-time
+- [x] Increase default window size for better statistics visibility
+- [x] Improve color scheme for better readability
+- [ ] Convert SVG icon to SF Symbol for better system integration
 - [ ] Add keyboard shortcuts for common actions
 - [ ] Create a more comprehensive statistics view
 - [ ] Implement Spotlight search integration
 - [ ] Add contextual menu support
-- [ ] Create a menubar widget with customizable information
+- [ ] Improve menubar widget with customizable information
 - [ ] Add Handoff support between iOS and macOS
 - [ ] Implement Share extension
 

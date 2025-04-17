@@ -1,5 +1,18 @@
 # Changelog
 
+## 2025-04-17 - Menu Bar Improvements & UI Refinements
+
+### Added
+- Improved timer synchronization between menu bar and main window
+- Increased default window size (800x600) for better statistics display
+- Enhanced color contrast for better readability
+
+### Fixed
+- Menu bar timer now properly updates in real-time
+- Fixed "Open Main Window" button functionality in menu bar
+- Corrected timer colors in device list for better visibility
+- Synchronized timers to update consistently across the app
+
 ## 2025-04-17 - macOS App, Project Reorganization & App Icons
 
 ### Added

@@ -73,3 +73,15 @@ If app icons don't appear immediately:
 1. Delete the app from the simulator/device first
 2. Clean the build folder (Shift+Cmd+K)
 3. Rebuild the app - icons may take a couple of simulator launches to appear due to caching
+
+## Menu Bar Integration
+
+The macOS app includes a menu bar integration that allows you to:
+- See the currently active timer at a glance
+- Start and stop device timers
+- Quickly open the main window
+- Access all your devices without keeping the main window open
+
+The menu bar displays the timer with color coding:
+- Blue: Device timer is active
+- White/Default: Device timer is inactive
