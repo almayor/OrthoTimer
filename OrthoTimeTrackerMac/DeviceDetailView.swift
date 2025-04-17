@@ -25,7 +25,7 @@ struct DeviceDetailView: View {
                             onCommit: {
                                 updateDeviceName()
                             },
-                            font: NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .title))
+                            font: NSFont.systemFont(ofSize: 18) // Larger title-like font size
                         )
                         .frame(height: 40)
                         
