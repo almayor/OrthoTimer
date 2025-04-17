@@ -75,19 +75,25 @@ struct DeviceRow: View {
     @EnvironmentObject private var deviceManager: OTTDeviceManager
     
     var body: some View {
-        HStack {
+        // Observe timestamp changes
+        let _ = deviceManager.currentTimestamp
+        
+        // Get the latest device data
+        let currentDevice = deviceManager.devices.first(where: { $0.id == device.id }) ?? device
+        
+        return HStack {
             VStack(alignment: .leading) {
-                Text(device.name)
+                Text(currentDevice.name)
                     .font(.headline)
                 
-                Text(TimeUtils.formattedTime(device.totalTime()))
+                Text(TimeUtils.formattedTime(currentDevice.totalTime()))
                     .font(.subheadline)
-                    .foregroundColor(device.isRunning ? .accentColor : .secondary)
+                    .foregroundColor(currentDevice.isRunning ? .accentColor : .secondary)
             }
             
             Spacer()
             
-            if device.isRunning {
+            if currentDevice.isRunning {
                 Image(systemName: "timer.circle.fill")
                     .foregroundColor(.accentColor)
             }

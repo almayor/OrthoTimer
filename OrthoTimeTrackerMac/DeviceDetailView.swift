@@ -43,21 +43,39 @@ struct DeviceDetailView: View {
                     }
                 }
                 
-                // Stopwatch
+                // Stopwatch - using the current device manager timestamp for live updates
                 VStack(alignment: .center, spacing: 10) {
-                    Text(TimeUtils.formattedTime(device.totalTime()))
+                    // This view observes both the timestamp and the objectWillChange publisher
+                    let _ = deviceManager.currentTimestamp
+                    
+                    // Add a timer for redundant UI refresh
+                    Text("")
+                        .hidden()
+                        .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
+                            // This creates a separate refresh cycle as a backup
+                        }
+                    
+                    // Get the current device from the manager to ensure we have the latest data
+                    let currentDevice = deviceManager.devices.first(where: { $0.id == device.id }) ?? device
+                    
+                    Text(TimeUtils.formattedTime(currentDevice.totalTime()))
                         .font(.system(size: 60, weight: .bold, design: .monospaced))
-                        .foregroundColor(device.isRunning ? .accentColor : .primary)
+                        .foregroundColor(currentDevice.isRunning ? .accentColor : .primary)
                     
                     Button(action: {
-                        deviceManager.toggleTimer(for: device)
+                        // Always use the latest device reference
+                        if let freshDevice = deviceManager.devices.first(where: { $0.id == device.id }) {
+                            deviceManager.toggleTimer(for: freshDevice)
+                        } else {
+                            deviceManager.toggleTimer(for: device)
+                        }
                     }) {
-                        Text(device.isRunning ? "Stop" : "Start")
+                        Text(currentDevice.isRunning ? "Stop" : "Start")
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(.horizontal, 30)
                             .padding(.vertical, 10)
-                            .background(device.isRunning ? Color.red : OrthoTimeTrackerCore.accentColor)
+                            .background(currentDevice.isRunning ? Color.red : OrthoTimeTrackerCore.accentColor)
                             .cornerRadius(10)
                     }
                     .buttonStyle(BorderlessButtonStyle())
@@ -87,19 +105,25 @@ struct StatisticsView: View {
     @EnvironmentObject private var deviceManager: OTTDeviceManager
     
     var body: some View {
-        GroupBox(label: Text("Statistics").font(.headline)) {
+        // Observe the timestamp to keep stats current
+        let _ = deviceManager.currentTimestamp
+        
+        // Get the latest device data
+        let currentDevice = deviceManager.devices.first(where: { $0.id == device.id }) ?? device
+        
+        return GroupBox(label: Text("Statistics").font(.headline)) {
             VStack(alignment: .leading, spacing: 15) {
-                StatRow(title: "Today", value: TimeUtils.formattedTime(device.totalTime()))
+                StatRow(title: "Today", value: TimeUtils.formattedTime(currentDevice.totalTime()))
                 
                 Divider()
                 
-                StatRow(title: "This Week", value: TimeUtils.formattedTime(device.totalTime(timeFrame: .week)))
-                StatRow(title: "This Month", value: TimeUtils.formattedTime(device.totalTime(timeFrame: .month)))
+                StatRow(title: "This Week", value: TimeUtils.formattedTime(currentDevice.totalTime(timeFrame: .week)))
+                StatRow(title: "This Month", value: TimeUtils.formattedTime(currentDevice.totalTime(timeFrame: .month)))
                 
                 Divider()
                 
-                StatRow(title: "Daily Average (Week)", value: TimeUtils.formattedTime(device.averageTimePerDay(timeFrame: .week)))
-                StatRow(title: "Daily Average (Month)", value: TimeUtils.formattedTime(device.averageTimePerDay(timeFrame: .month)))
+                StatRow(title: "Daily Average (Week)", value: TimeUtils.formattedTime(currentDevice.averageTimePerDay(timeFrame: .week)))
+                StatRow(title: "Daily Average (Month)", value: TimeUtils.formattedTime(currentDevice.averageTimePerDay(timeFrame: .month)))
             }
             .padding()
         }

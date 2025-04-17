@@ -5,7 +5,9 @@ import OrthoTimeTrackerCore
 struct MenuBarView: View {
     @EnvironmentObject private var deviceManager: OTTDeviceManager
     @EnvironmentObject private var menuBarManager: OTTMenuBarManager
-    @Environment(\.openWindow) private var openWindow
+    
+    // Timer for refreshing the UI
+    @State private var refreshTimer = Date()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -17,7 +19,12 @@ struct MenuBarView: View {
             Picker("Device", selection: Binding(
                 get: { self.menuBarManager.selectedDevice?.id },
                 set: { newValue in
-                    self.menuBarManager.selectedDevice = self.deviceManager.devices.first(where: { $0.id == newValue })
+                    if let id = newValue, 
+                       let device = self.deviceManager.devices.first(where: { $0.id == id }) {
+                        self.menuBarManager.selectedDevice = device
+                    } else {
+                        self.menuBarManager.selectedDevice = nil
+                    }
                 }
             )) {
                 Text("Select a device").tag(nil as UUID?)
@@ -31,13 +38,27 @@ struct MenuBarView: View {
             // Active timer display
             if let device = menuBarManager.selectedDevice {
                 VStack(alignment: .center, spacing: 5) {
-                    Text(TimeUtils.formattedTime(device.totalTime()))
+                    // Use DeviceManager's timestamp to stay in sync
+                    Text("")
+                        .hidden()
+                        .onReceive(deviceManager.$currentTimestamp) { _ in
+                            // This ensures we update exactly when the device manager does
+                            menuBarManager.updateTimerText()
+                        }
+                    
+                    // Always get the latest time 
+                    Text(menuBarManager.currentTimeForSelectedDevice())
                         .font(.system(.title, design: .monospaced))
                         .foregroundColor(device.isRunning ? .accentColor : .primary)
                     
                     HStack(spacing: 20) {
                         Button(action: {
-                            deviceManager.toggleTimer(for: device)
+                            // Always get the fresh device before toggling
+                            if let deviceId = menuBarManager.selectedDevice?.id,
+                               let freshDevice = deviceManager.devices.first(where: { $0.id == deviceId }) {
+                                deviceManager.toggleTimer(for: freshDevice)
+                                menuBarManager.updateTimerText()
+                            }
                         }) {
                             Text(device.isRunning ? "Stop" : "Start")
                                 .frame(width: 80)
@@ -60,8 +81,11 @@ struct MenuBarView: View {
             // Command buttons side by side
             HStack(spacing: 10) {
                 Button("Open Main Window") {
-                    NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "main")
+                    // Simply notify the app delegate to handle window opening
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("OpenMainWindow"), 
+                        object: nil
+                    )
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
@@ -78,5 +102,9 @@ struct MenuBarView: View {
         }
         .padding()
         .frame(width: 250)
+        .onAppear {
+            // Force an update when the menu appears
+            menuBarManager.updateTimerText()
+        }
     }
 }

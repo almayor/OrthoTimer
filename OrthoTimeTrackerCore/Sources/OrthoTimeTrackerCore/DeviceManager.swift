@@ -147,16 +147,32 @@ public class DeviceManager: ObservableObject {
     #endif
     
     private func setupTimer() {
-        // Create a timer that updates a timestamp every second,
-        // which forces all observing views to refresh
+        // Create a timer that updates consistently every second
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             guard let self = self else { return }
+            
+            // Force update of timestamp for SwiftUI refresh
             self.currentTimestamp = Date()
-            self.objectWillChange.send()
+            
+            // Force a UI update
+            DispatchQueue.main.async {
+                self.objectWillChange.send()
+            }
+            
+            // Also force update of session times if needed
+            for (index, device) in self.devices.enumerated() where device.isRunning {
+                // No need to update the full device, just force UI refresh
+                if device.isRunning {
+                    // Publishing a second change notification helps SwiftUI catch updates
+                    DispatchQueue.main.async {
+                        self.objectWillChange.send()
+                    }
+                }
+            }
         }
         
-        // Make sure timer runs even when scrolling
-        RunLoop.current.add(timer!, forMode: .common)
+        // Make sure timer runs in all run loop modes
+        RunLoop.main.add(timer!, forMode: .common)
     }
     
     public func addDevice(name: String) {
