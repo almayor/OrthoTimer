@@ -481,58 +481,283 @@ struct ExportView: View {
     }
     
     private func shareCSV() {
-        // Get the documents directory
-        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            print("Could not find documents directory")
-            return
-        }
-        
-        // Create a file name with timestamp
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dateString = formatter.string(from: Date())
-        let filename = "\(deviceName.replacingOccurrences(of: " ", with: "_"))_\(dateString)_wear_time.csv"
-        
-        // Create file path
-        let path = documentsDirectory.appendingPathComponent(filename)
+        // Create a temporary file
+        let filename = "\(deviceName.replacingOccurrences(of: " ", with: "_"))_wear_time.csv"
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         
         do {
-            // Write CSV data to file
             try csvData.write(to: path, atomically: true, encoding: .utf8)
-            print("CSV file created at: \(path.path)")
             
-            // Share the file
-            let av = UIActivityViewController(
+            // Create the share sheet
+            let activityVC = UIActivityViewController(
                 activityItems: [path],
                 applicationActivities: nil
             )
             
-            // Find the current UIWindow to present from
+            // Present the share sheet
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first,
-               let rootVC = window.rootViewController {
-                
-                // If presented modally, use the presenting controller
-                var topController = rootVC
-                while let presenter = topController.presentedViewController {
-                    topController = presenter
-                }
-                
-                // For iPad, set popover presentation
-                if let popover = av.popoverPresentationController {
-                    popover.sourceView = topController.view
-                    popover.sourceRect = CGRect(x: topController.view.bounds.midX, 
-                                               y: topController.view.bounds.midY, 
-                                               width: 0, height: 0)
-                    popover.permittedArrowDirections = []
-                }
-                
-                DispatchQueue.main.async {
-                    topController.present(av, animated: true, completion: nil)
-                }
+               let rootViewController = windowScene.windows.first?.rootViewController {
+                rootViewController.present(activityVC, animated: true, completion: nil)
             }
         } catch {
-            print("Error creating CSV file: \(error.localizedDescription)")
+            print("Error creating CSV file: \(error)")
+        }
+    }
+}
+
+struct DeviceListView_Previews: PreviewProvider {
+    static var previews: some View {
+        DeviceListView()
+            .environmentObject(OTTDeviceManager())
+    }
+}
+            
+            HStack(alignment: .bottom, spacing: 4) {
+                ForEach(weekDays(), id: \.0) { (date, timeInterval) in
+                    VStack {
+                        // Height proportional to wear time
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.accentColor.opacity(0.7))
+                            .frame(height: barHeight(for: timeInterval))
+                        
+                        Text(dayFormatter.string(from: date))
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            
+                        Text(hourFormatter(timeInterval))
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(height: 130)
+            .padding(.top, 4)
+            
+            // Weekly average
+            HStack {
+                Text("Weekly average:")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(TimeUtils.formattedTime(weeklyAverage()))
+                    .font(.system(.caption, design: .monospaced))
+                    .fontWeight(.medium)
+            }
+            .padding(.top, 4)
+        }
+    }
+    
+    // Monthly statistics view
+    private func monthlyStatsView() -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Monthly statistics")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .bottom, spacing: 4) {
+                    ForEach(monthDays(), id: \.0) { (date, timeInterval) in
+                        VStack {
+                            // Height proportional to wear time
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Color.accentColor.opacity(0.7))
+                                .frame(height: barHeight(for: timeInterval))
+                                .frame(width: 12)
+                            
+                            Text(dayOfMonthFormatter.string(from: date))
+                                .font(.system(.caption2, design: .monospaced))
+                                .foregroundColor(.secondary)
+                                
+                            Text(hourFormatter(timeInterval))
+                                .font(.system(.caption2, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(width: 30)
+                    }
+                }
+            }
+            .frame(height: 130)
+            .padding(.top, 4)
+            
+            // Monthly average
+            HStack {
+                Text("Monthly average:")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(TimeUtils.formattedTime(monthlyAverage()))
+                    .font(.system(.caption, design: .monospaced))
+                    .fontWeight(.medium)
+            }
+            .padding(.top, 4)
+        }
+    }
+    
+    // Calculate days for weekly stats
+    private func weekDays() -> [(Date, TimeInterval)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        var days: [(Date, TimeInterval)] = []
+        for i in 0..<7 {
+            guard let date = calendar.date(byAdding: .day, value: -i, to: today) else { continue }
+            let time = device.weeklyStats[date] ?? 0
+            days.append((date, time))
+        }
+        
+        return days.reversed()
+    }
+    
+    // Calculate days for monthly stats
+    private func monthDays() -> [(Date, TimeInterval)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        var days: [(Date, TimeInterval)] = []
+        for i in 0..<30 {
+            guard let date = calendar.date(byAdding: .day, value: -i, to: today) else { continue }
+            let time = device.monthlyStats[date] ?? 0
+            days.append((date, time))
+        }
+        
+        return days.reversed()
+    }
+    
+    // Calculate weekly average
+    private func weeklyAverage() -> TimeInterval {
+        let days = weekDays()
+        let totalTime = days.reduce(0) { $0 + $1.1 }
+        return days.isEmpty ? 0 : totalTime / Double(days.count)
+    }
+    
+    // Calculate monthly average
+    private func monthlyAverage() -> TimeInterval {
+        let days = monthDays()
+        let totalTime = days.reduce(0) { $0 + $1.1 }
+        return days.isEmpty ? 0 : totalTime / Double(days.count)
+    }
+    
+    // Calculate bar height based on wear time
+    private func barHeight(for timeInterval: TimeInterval) -> CGFloat {
+        let maxHeight: CGFloat = 80
+        let hoursWorn = timeInterval / 3600
+        
+        // Target is typically 8-22 hours for orthodontic devices
+        let targetHours: Double = 16
+        
+        // Scale height proportionally, max out at 22 hours
+        return min(maxHeight * CGFloat(hoursWorn / targetHours), maxHeight)
+    }
+    
+    // Format hours for display under bars
+    private func hourFormatter(_ timeInterval: TimeInterval) -> String {
+        let hours = Int(timeInterval / 3600)
+        return "\(hours)h"
+    }
+    
+    // Generate CSV data for export
+    private func generateCSV() {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        
+        var csv = "Date,Hours Worn\n"
+        
+        // Combine and sort all statistics
+        var allStats: [(Date, TimeInterval)] = []
+        for (date, time) in device.monthlyStats {
+            allStats.append((date, time))
+        }
+        
+        // Sort by date (newest first)
+        allStats.sort { $0.0 > $1.0 }
+        
+        // Add each day to CSV
+        for (date, time) in allStats {
+            let hours = time / 3600
+            csv.append("\(formatter.string(from: date)),\(String(format: "%.2f", hours))\n")
+        }
+        
+        self.csvData = csv
+    }
+    
+    private let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter
+    }()
+    
+    private let dayOfMonthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d"
+        return formatter
+    }()
+}
+
+// View for exporting CSV data
+struct ExportView: View {
+    let csvData: String
+    let deviceName: String
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("Export Data for \(deviceName)")
+                    .font(.headline)
+                    .padding()
+                
+                ScrollView {
+                    Text(csvData)
+                        .font(.system(.body, design: .monospaced))
+                        .padding()
+                }
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(8)
+                .padding()
+                
+                Button(action: {
+                    shareCSV()
+                }) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share CSV File")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .padding()
+            }
+            .navigationBarItems(trailing: Button("Done") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+    
+    private func shareCSV() {
+        // Create a temporary file
+        let filename = "\(deviceName.replacingOccurrences(of: " ", with: "_"))_wear_time.csv"
+        let path = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        
+        do {
+            try csvData.write(to: path, atomically: true, encoding: .utf8)
+            
+            // Create the share sheet
+            let activityVC = UIActivityViewController(
+                activityItems: [path],
+                applicationActivities: nil
+            )
+            
+            // Present the share sheet
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootViewController = windowScene.windows.first?.rootViewController {
+                rootViewController.present(activityVC, animated: true, completion: nil)
+            }
+        } catch {
+            print("Error creating CSV file: \(error)")
         }
     }
 }

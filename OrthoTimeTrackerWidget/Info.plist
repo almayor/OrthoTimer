@@ -4,8 +4,21 @@
 <dict>
 	<key>NSExtension</key>
 	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<key>IntentSupported</key>
+			<string>NO</string>
+			<key>WidgetFamily</key>
+			<array>
+				<string>systemSmall</string>
+				<string>systemMedium</string>
+				<string>systemLarge</string>
+			</array>
+		</dict>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>$(PRODUCT_MODULE_NAME).OrthoTimerWidgetBundle</string>
 	</dict>
 </dict>
 </plist>

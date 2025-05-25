@@ -3,8 +3,6 @@ import SwiftUI
 import CloudKit
 import OrthoTimeTrackerCore
 
-// MARK: - Widget Configuration
-
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), devices: [sampleDevice()])
@@ -16,11 +14,14 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        // Use CloudKit for real devices
         fetchDevices { fetchedDevices in
             let currentDate = Date()
             
+            let devices = fetchedDevices.isEmpty ? [self.sampleDevice()] : fetchedDevices
+            
             // Create a timeline with updates every minute
-            let entries = createTimelineEntries(startDate: currentDate, devices: fetchedDevices)
+            let entries = self.createTimelineEntries(startDate: currentDate, devices: devices)
             let timeline = Timeline(entries: entries, policy: .atEnd)
             
             completion(timeline)
@@ -85,9 +86,7 @@ struct SimpleEntry: TimelineEntry {
     let devices: [OTTDevice]
 }
 
-// MARK: - Widget Views
-
-struct TimeTrackerWidgetEntryView: View {
+struct OrthoTimeTrackerWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var widgetFamily
     
@@ -116,7 +115,7 @@ struct SingleDeviceWidgetView: View {
     
     var body: some View {
         ZStack {
-            Color("AccentColor").opacity(0.1)
+            Color.accentColor.opacity(0.1)
             
             VStack(spacing: 10) {
                 Text(device.name)
@@ -125,16 +124,16 @@ struct SingleDeviceWidgetView: View {
                 
                 Text(TimeUtils.formattedTime(device.totalTime()))
                     .font(.system(.title2, design: .monospaced))
-                    .foregroundColor(device.isRunning ? Color("AccentColor") : .primary)
+                    .foregroundColor(device.isRunning ? .accentColor : .primary)
                 
                 // Button to toggle timer state
-                Link(destination: URL(string: "orthotimetracker://toggle/\(device.id.uuidString)")!) {
+                Link(destination: URL(string: "orthotimer://toggle/\(device.id.uuidString)")!) {
                     Text(device.isRunning ? "Stop" : "Start")
                         .font(.caption)
                         .fontWeight(.medium)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
-                        .background(device.isRunning ? Color.red : Color("AccentColor"))
+                        .background(device.isRunning ? Color.red : Color.accentColor)
                         .foregroundColor(.white)
                         .cornerRadius(12)
                 }
@@ -145,7 +144,7 @@ struct SingleDeviceWidgetView: View {
                         Text("Active")
                     }
                     .font(.caption2)
-                    .foregroundColor(Color("AccentColor"))
+                    .foregroundColor(.accentColor)
                 }
             }
             .padding()
@@ -158,7 +157,7 @@ struct MultipleDevicesWidgetView: View {
     
     var body: some View {
         ZStack {
-            Color("AccentColor").opacity(0.1)
+            Color.accentColor.opacity(0.1)
             
             if devices.isEmpty {
                 EmptyDeviceView()
@@ -203,24 +202,24 @@ struct DeviceRowWidgetView: View {
                 
                 Text(TimeUtils.formattedTime(device.totalTime()))
                     .font(.system(.body, design: .monospaced))
-                    .foregroundColor(device.isRunning ? Color("AccentColor") : .primary)
+                    .foregroundColor(device.isRunning ? .accentColor : .primary)
             }
             
             Spacer()
             
             if device.isRunning {
                 Image(systemName: "timer.circle.fill")
-                    .foregroundColor(Color("AccentColor"))
+                    .foregroundColor(.accentColor)
             }
             
             // Button to toggle timer state
-            Link(destination: URL(string: "orthotimetracker://toggle/\(device.id.uuidString)")!) {
+            Link(destination: URL(string: "orthotimer://toggle/\(device.id.uuidString)")!) {
                 Text(device.isRunning ? "Stop" : "Start")
                     .font(.caption)
                     .fontWeight(.medium)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 4)
-                    .background(device.isRunning ? Color.red : Color("AccentColor"))
+                    .background(device.isRunning ? Color.red : Color.accentColor)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
@@ -235,7 +234,7 @@ struct EmptyDeviceView: View {
         VStack(spacing: 8) {
             Image(systemName: "timer.circle")
                 .font(.system(size: 28))
-                .foregroundColor(Color("AccentColor").opacity(0.5))
+                .foregroundColor(Color.accentColor.opacity(0.5))
             
             Text("No Devices")
                 .font(.headline)
@@ -248,40 +247,24 @@ struct EmptyDeviceView: View {
     }
 }
 
-// MARK: - Widget Definition
-
-struct TimeTrackerWidget: Widget {
-    let kind: String = "TimeTrackerWidget"
+struct OrthoTimerWidget: Widget {
+    let kind: String = "OrthoTimerWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            TimeTrackerWidgetEntryView(entry: entry)
+            if #available(iOS 17.0, *) {
+                OrthoTimeTrackerWidgetEntryView(entry: entry)
+                    .containerBackground(.fill.tertiary, for: .widget)
+            } else {
+                OrthoTimeTrackerWidgetEntryView(entry: entry)
+                    .padding()
+                    .background()
+            }
         }
-        .configurationDisplayName("Device Tracker")
+        .configurationDisplayName("OrthoTimer")
         .description("Track your orthodontic device wear time.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 
-// MARK: - Widget Previews
-
-struct TimeTrackerWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleDevices = [
-            OTTDevice(name: "Retainer", totalTimeToday: 7200, sessionStartTime: Date()),
-            OTTDevice(name: "Invisalign", totalTimeToday: 14400),
-            OTTDevice(name: "Nightguard", totalTimeToday: 3600, sessionStartTime: Date())
-        ]
-        let entry = SimpleEntry(date: Date(), devices: sampleDevices)
-        
-        Group {
-            TimeTrackerWidgetEntryView(entry: SimpleEntry(date: Date(), devices: [sampleDevices[0]]))
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-                .previewDisplayName("Small - Single Device")
-            
-            TimeTrackerWidgetEntryView(entry: entry)
-                .previewContext(WidgetPreviewContext(family: .systemMedium))
-                .previewDisplayName("Medium - Multiple Devices")
-        }
-    }
-}
+// Using OTTDevice from OrthoTimeTrackerCore instead of local Device model

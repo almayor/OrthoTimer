@@ -15,17 +15,12 @@ public class DeviceManager: ObservableObject {
     private var lastMidnightCheck = Date()
     
     public init() {
-        // IMPORTANT: Re-enable CloudKit after Apple Developer Program enrollment is approved
-        // TODO: Remove these conditional checks once Developer Program is active
-        
-        // Only try to use CloudKit on iOS in non-simulator, non-debug builds
-        #if os(iOS) && !targetEnvironment(simulator) && !DEBUG
-        // Only initialize CloudKit if we're on iOS with Developer Program
-        cloudKitContainer = CKContainer.default()
-        #else
-        // Don't even try to initialize CloudKit in other scenarios
+        // Initialize CloudKit for all environments except simulator
+        #if targetEnvironment(simulator)
         cloudKitContainer = nil
-        print("CloudKit disabled - using local data only")
+        print("CloudKit disabled in simulator - using local data only")
+        #else
+        cloudKitContainer = CKContainer.default()
         #endif
         
         #if os(iOS)
@@ -35,15 +30,12 @@ public class DeviceManager: ObservableObject {
         
         setupTimer()
         
-        // Always start with sample data first
-        loadSampleData()
-        
-        // Only attempt to fetch from CloudKit on iOS with Developer Program
-        #if os(iOS) && !targetEnvironment(simulator) && !DEBUG
-        if cloudKitContainer != nil {
+        // Use sample data only if CloudKit is not available
+        if cloudKitContainer == nil {
+            loadSampleData()
+        } else {
             fetchDevices()
         }
-        #endif
         
         // Check for midnight transition and notification conditions
         Timer.publish(every: 60, on: .main, in: .common)
@@ -299,42 +291,42 @@ public class DeviceManager: ObservableObject {
     // MARK: - CloudKit Operations
     
     private func fetchDevices() {
-        // Use sample data when CloudKit is not available
-        // Sample data has already been loaded in init()
-        
         // Guard for CloudKit availability
         guard let container = cloudKitContainer else {
             print("CloudKit container not available")
+            loadSampleData()
             return
         }
         
-        // Skip CloudKit on simulator, macOS, or debug builds
-        #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        print("Skipping CloudKit fetch on simulator/macOS/debug")
+        // Skip CloudKit on simulator only
+        #if targetEnvironment(simulator)
+        print("Skipping CloudKit fetch on simulator")
+        loadSampleData()
         return
         #endif
         
-        // Real CloudKit implementation - will work when you have a developer account
+        // Real CloudKit implementation
         let privateDatabase = container.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
         
         privateDatabase.perform(query, inZoneWith: nil) { [weak self] results, error in
             if let error = error {
                 print("Error fetching devices: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self?.loadSampleData() // Fall back to sample data if fetch fails
+                }
                 return
             }
             
-            guard let results = results, !results.isEmpty else { 
-                print("No results found in CloudKit")
-                return 
-            }
-            
-            let devices = results.compactMap { Device.fromCKRecord($0) }
+            let devices = results?.compactMap { Device.fromCKRecord($0) } ?? []
             
             DispatchQueue.main.async {
                 if !devices.isEmpty {
                     self?.devices = devices
                     self?.checkForMidnightTransition() // Check if we need to reset timers
+                } else {
+                    print("No devices found in CloudKit, using initial data")
+                    self?.loadSampleData()
                 }
             }
         }
@@ -350,9 +342,9 @@ public class DeviceManager: ObservableObject {
     }
     
     private func saveDevice(_ device: Device) {
-        // Skip CloudKit on simulator, macOS, or debug builds
-        #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        print("Skipping CloudKit save - using local data only")
+        // Skip CloudKit on simulator only
+        #if targetEnvironment(simulator)
+        print("Skipping CloudKit save in simulator - using local data only")
         return
         #endif
         
@@ -369,14 +361,16 @@ public class DeviceManager: ObservableObject {
         privateDatabase.save(record) { _, error in
             if let error = error {
                 print("Error saving device: \(error.localizedDescription)")
+            } else {
+                print("Device saved to CloudKit successfully")
             }
         }
     }
     
     private func deleteDeviceFromCloud(_ device: Device) {
-        // Skip CloudKit on simulator, macOS, or debug builds
-        #if targetEnvironment(simulator) || os(macOS) || DEBUG
-        print("Skipping CloudKit delete - using local data only")
+        // Skip CloudKit on simulator only
+        #if targetEnvironment(simulator)
+        print("Skipping CloudKit delete in simulator - using local data only")
         return
         #endif
         
@@ -393,6 +387,8 @@ public class DeviceManager: ObservableObject {
         privateDatabase.delete(withRecordID: recordID) { _, error in
             if let error = error {
                 print("Error deleting device: \(error.localizedDescription)")
+            } else {
+                print("Device deleted from CloudKit successfully")
             }
         }
     }

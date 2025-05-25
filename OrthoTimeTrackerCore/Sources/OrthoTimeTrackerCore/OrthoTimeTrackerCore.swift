@@ -5,19 +5,14 @@ public struct OrthoTimeTrackerCore {
     public static let version = "1.0.0"
     
     public static func configure() {
-        // IMPORTANT: Re-enable CloudKit after Apple Developer Program enrollment is approved
-        // TODO: Update this configuration method once Developer Program is active
-        
         #if os(macOS)
-        print("OrthoTimeTrackerCore configured for macOS - CloudKit disabled")
-        print("NOTE: CloudKit will be enabled on macOS after Developer Program approval")
+        print("OrthoTimeTrackerCore configured for macOS - CloudKit enabled")
         #elseif targetEnvironment(simulator)
-        print("OrthoTimeTrackerCore configured for iOS simulator - CloudKit disabled")
+        print("OrthoTimeTrackerCore configured for iOS simulator - CloudKit disabled for simulator")
         #elseif DEBUG
-        print("OrthoTimeTrackerCore configured for iOS DEBUG - CloudKit disabled")
+        print("OrthoTimeTrackerCore configured for iOS DEBUG - CloudKit enabled")
         #else
-        print("OrthoTimeTrackerCore configured for iOS - CloudKit disabled until Developer Program approval")
-        print("NOTE: CloudKit will be enabled once Developer Program is approved")
+        print("OrthoTimeTrackerCore configured for iOS - CloudKit enabled")
         #endif
     }
     

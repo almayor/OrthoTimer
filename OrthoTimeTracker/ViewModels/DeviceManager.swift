@@ -286,10 +286,6 @@ class DeviceManager: ObservableObject {
     }
     
     private func saveDevice(_ device: OTTDevice) {
-        #if targetEnvironment(simulator)
-        // Skip CloudKit operations in simulator
-        print("Skipping CloudKit save in simulator")
-        #else
         // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
         let record = device.toCKRecord()
@@ -299,14 +295,9 @@ class DeviceManager: ObservableObject {
                 print("Error saving device: \(error.localizedDescription)")
             }
         }
-        #endif
     }
     
     private func deleteDeviceFromCloud(_ device: OTTDevice) {
-        #if targetEnvironment(simulator)
-        // Skip CloudKit operations in simulator
-        print("Skipping CloudKit delete in simulator")
-        #else
         // Real CloudKit implementation
         let privateDatabase = cloudKitContainer.privateCloudDatabase
         let recordID = CKRecord.ID(recordName: device.id.uuidString)
@@ -316,6 +307,5 @@ class DeviceManager: ObservableObject {
                 print("Error deleting device: \(error.localizedDescription)")
             }
         }
-        #endif
     }
 }

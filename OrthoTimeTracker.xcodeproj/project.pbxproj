@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		880FE63B2DE33FE300DEE358 /* OrthoTimeTrackerCore in Frameworks */ = {isa = PBXBuildFile; productRef = 880FE63A2DE33FE300DEE358 /* OrthoTimeTrackerCore */; };
 		8829DDBC2DB1542700B32F01 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBB2DB1542700B32F01 /* WidgetKit.framework */; };
 		8829DDBE2DB1542700B32F01 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8829DDBD2DB1542700B32F01 /* SwiftUI.framework */; };
 		8829DDCD2DB1542900B32F01 /* OrthoTimeTrackerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -18,9 +19,7 @@
 		AA001C4D2A0E1CC200B7E123 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C4C2A0E1CC200B7E123 /* Device.swift */; };
 		AA001C4F2A0E1CE100B7E123 /* DeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C4E2A0E1CE100B7E123 /* DeviceManager.swift */; };
 		AA001C512A0E1D0100B7E123 /* DeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C502A0E1D0100B7E123 /* DeviceListView.swift */; };
-		AA001C532A0E1D1E00B7E123 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C522A0E1D1E00B7E123 /* DeviceDetailView.swift */; };
 		AA001C552A0E1D3D00B7E123 /* TimeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C542A0E1D3D00B7E123 /* TimeUtils.swift */; };
-		AA001C572A0E1D5A00B7E123 /* TimeTrackerWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA001C562A0E1D5A00B7E123 /* TimeTrackerWidget.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,9 +60,7 @@
 		AA001C4C2A0E1CC200B7E123 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		AA001C4E2A0E1CE100B7E123 /* DeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManager.swift; sourceTree = "<group>"; };
 		AA001C502A0E1D0100B7E123 /* DeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceListView.swift; sourceTree = "<group>"; };
-		AA001C522A0E1D1E00B7E123 /* DeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailView.swift; sourceTree = "<group>"; };
 		AA001C542A0E1D3D00B7E123 /* TimeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeUtils.swift; sourceTree = "<group>"; };
-		AA001C562A0E1D5A00B7E123 /* TimeTrackerWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeTrackerWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -86,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				880FE63B2DE33FE300DEE358 /* OrthoTimeTrackerCore in Frameworks */,
 				8829DDBE2DB1542700B32F01 /* SwiftUI.framework in Frameworks */,
 				8829DDBC2DB1542700B32F01 /* WidgetKit.framework in Frameworks */,
 			);
@@ -148,7 +146,6 @@
 				AA001C4A2A0E1CA100B7E123 /* ViewModels */,
 				AA001C4B2A0E1CA800B7E123 /* Views */,
 				AA001C582A0E1D6300B7E123 /* Utils */,
-				AA001C592A0E1D7000B7E123 /* Widgets */,
 				AA001C3D2A0E1C8100B7E123 /* Assets.xcassets */,
 				AA001C422A0E1C8100B7E123 /* Info.plist */,
 				AA001C432A0E1C8100B7E123 /* OrthoTimeTracker.entitlements */,
@@ -185,7 +182,6 @@
 			isa = PBXGroup;
 			children = (
 				AA001C502A0E1D0100B7E123 /* DeviceListView.swift */,
-				AA001C522A0E1D1E00B7E123 /* DeviceDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -196,14 +192,6 @@
 				AA001C542A0E1D3D00B7E123 /* TimeUtils.swift */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		AA001C592A0E1D7000B7E123 /* Widgets */ = {
-			isa = PBXGroup;
-			children = (
-				AA001C562A0E1D5A00B7E123 /* TimeTrackerWidget.swift */,
-			);
-			path = Widgets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -226,6 +214,7 @@
 			);
 			name = OrthoTimeTrackerWidgetExtension;
 			packageProductDependencies = (
+				880FE63A2DE33FE300DEE358 /* OrthoTimeTrackerCore */,
 			);
 			productName = OrthoTimeTrackerWidgetExtension;
 			productReference = 8829DDB92DB1542700B32F01 /* OrthoTimeTrackerWidgetExtension.appex */;
@@ -361,13 +350,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA001C572A0E1D5A00B7E123 /* TimeTrackerWidget.swift in Sources */,
 				AA001C552A0E1D3D00B7E123 /* TimeUtils.swift in Sources */,
 				AA001C4D2A0E1CC200B7E123 /* Device.swift in Sources */,
 				AA001C512A0E1D0100B7E123 /* DeviceListView.swift in Sources */,
 				AA001C4F2A0E1CE100B7E123 /* DeviceManager.swift in Sources */,
 				AA001C3A2A0E1C7E00B7E123 /* OrthoTimeTrackerApp.swift in Sources */,
-				AA001C532A0E1D1E00B7E123 /* DeviceDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,12 +378,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OrthoTimeTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTrackerWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimer;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -406,7 +393,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker.OrthoTimeTrackerWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimer.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -425,12 +412,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = OrthoTimeTrackerWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTrackerWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimer;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -440,7 +427,7 @@
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker.OrthoTimeTrackerWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimer.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -457,15 +444,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTrackerMac/OrthoTimeTrackerMac.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimerMac;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -474,7 +463,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = almayor.OrthoTimeTrackerMac;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimerMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
@@ -492,15 +481,17 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTrackerMac/OrthoTimeTrackerMac.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimerMac;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -509,7 +500,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = almayor.OrthoTimeTrackerMac;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimerMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = macosx;
@@ -642,17 +633,17 @@
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTracker/OrthoTimeTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"OrthoTimeTracker/Preview Content\"";
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = OrthoTimeTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTracker;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -667,17 +658,17 @@
 				CODE_SIGN_ENTITLEMENTS = OrthoTimeTracker/OrthoTimeTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"OrthoTimeTracker/Preview Content\"";
-				DEVELOPMENT_TEAM = 522L59B6X6;
+				DEVELOPMENT_TEAM = W9FX9D9ZKR;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = OrthoTimeTracker/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimeTracker;
+				INFOPLIST_KEY_CFBundleDisplayName = OrthoTimer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimeTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = com.almayor.OrthoTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -733,6 +724,11 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		880FE63A2DE33FE300DEE358 /* OrthoTimeTrackerCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8888876B2DB16DA000284BCC /* XCLocalSwiftPackageReference "OrthoTimeTrackerCore" */;
+			productName = OrthoTimeTrackerCore;
+		};
 		8888876C2DB16DA000284BCC /* OrthoTimeTrackerCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = OrthoTimeTrackerCore;

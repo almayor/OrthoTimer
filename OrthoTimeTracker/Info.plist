@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>OrthoTimer</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
@@ -22,10 +22,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.yourname.OrthoTimeTracker</string>
+			<string>com.almayor.OrthoTimer</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>orthotimetracker</string>
+				<string>orthotimer</string>
 			</array>
 		</dict>
 	</array>
