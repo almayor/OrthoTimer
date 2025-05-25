@@ -14,6 +14,14 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        #if targetEnvironment(simulator)
+        // For simulator testing, use sample data
+        let devices = [sampleDevice()]
+        let currentDate = Date()
+        let entries = createTimelineEntries(startDate: currentDate, devices: devices)
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+        #else
         // Use CloudKit for real devices
         fetchDevices { fetchedDevices in
             let currentDate = Date()
@@ -26,6 +34,7 @@ struct Provider: TimelineProvider {
             
             completion(timeline)
         }
+        #endif
     }
     
     // Sample device for previews and placeholders
@@ -247,6 +256,7 @@ struct EmptyDeviceView: View {
     }
 }
 
+@main
 struct OrthoTimerWidget: Widget {
     let kind: String = "OrthoTimerWidget"
 
