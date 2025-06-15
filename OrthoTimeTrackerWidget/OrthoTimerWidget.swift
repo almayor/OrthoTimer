@@ -2,25 +2,27 @@ import WidgetKit
 import SwiftUI
 import CloudKit
 import OrthoTimeTrackerCore
+import Intents
 
-struct Provider: TimelineProvider {
+struct Provider: IntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil)
+        SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: SelectDeviceIntent())
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil)
+    func getSnapshot(for configuration: SelectDeviceIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        let entry = SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: configuration)
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(for configuration: SelectDeviceIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         #if targetEnvironment(simulator)
         // For simulator testing, use sample data
         let devices = [sampleDevice()]
         let currentDate = Date()
         let entries = createTimelineEntries(
             startDate: currentDate,
-            devices: devices
+            devices: devices,
+            configuration: configuration
         )
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
@@ -34,7 +36,8 @@ struct Provider: TimelineProvider {
             // Create a timeline with updates every minute
             let entries = self.createTimelineEntries(
                 startDate: currentDate,
-                devices: devices
+                devices: devices,
+                configuration: configuration
             )
             let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(5 * 60))) // Update every 5 minutes
             
@@ -54,7 +57,8 @@ struct Provider: TimelineProvider {
     // Create entries for the next hour, updating every minute
     private func createTimelineEntries(
         startDate: Date,
-        devices: [OTTDevice]
+        devices: [OTTDevice],
+        configuration: SelectDeviceIntent
     ) -> [SimpleEntry] {
         var entries: [SimpleEntry] = []
         let calendar = Calendar.current
@@ -76,14 +80,23 @@ struct Provider: TimelineProvider {
             
             // Create widget relevance score based on active device
             var relevance: TimelineEntryRelevance? = nil
-            if let activeDevice = updatedDevices.first(where: { $0.isRunning }) {
+            
+            // If user has selected a specific device and it's running, boost relevance
+            if let deviceId = configuration.deviceId?.deviceId,
+               let selectedDevice = updatedDevices.first(where: { $0.id.uuidString == deviceId }),
+               selectedDevice.isRunning {
                 relevance = TimelineEntryRelevance(score: 100)
+            } 
+            // Otherwise if any device is running, give standard relevance
+            else if let activeDevice = updatedDevices.first(where: { $0.isRunning }) {
+                relevance = TimelineEntryRelevance(score: 90)
             }
             
             entries.append(SimpleEntry(
                 date: entryDate, 
                 devices: updatedDevices,
-                relevance: relevance
+                relevance: relevance,
+                configuration: configuration
             ))
         }
         
@@ -152,6 +165,21 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let devices: [OTTDevice]
     let relevance: TimelineEntryRelevance?
+    let configuration: SelectDeviceIntent
+    
+    var selectedDevice: OTTDevice? {
+        if let deviceId = configuration.deviceId?.deviceId {
+            return devices.first { $0.id.uuidString == deviceId }
+        }
+        return devices.first
+    }
+    
+    var filteredDevices: [OTTDevice] {
+        if let selectedDevice = selectedDevice {
+            return [selectedDevice]
+        }
+        return devices
+    }
 }
 
 struct OrthoTimeTrackerWidgetEntryView: View {
@@ -172,15 +200,15 @@ struct OrthoTimeTrackerWidgetEntryView: View {
             
             switch widgetFamily {
             case .systemSmall:
-                if let device = entry.devices.first {
+                if let device = entry.selectedDevice {
                     SingleDeviceWidgetView(device: device)
                 } else {
                     EmptyDeviceView()
                 }
             case .systemMedium, .systemLarge:
-                MultipleDevicesWidgetView(devices: entry.devices)
+                MultipleDevicesWidgetView(devices: entry.filteredDevices.isEmpty ? entry.devices : entry.filteredDevices)
             default:
-                if let device = entry.devices.first {
+                if let device = entry.selectedDevice {
                     SingleDeviceWidgetView(device: device)
                 } else {
                     EmptyDeviceView()
@@ -333,8 +361,9 @@ struct OrthoTimerWidget: Widget {
     let kind: String = "OrthoTimerWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(
+        IntentConfiguration(
             kind: kind,
+            intent: SelectDeviceIntent.self,
             provider: Provider()
         ) { entry in
             if #available(iOS 17.0, *) {

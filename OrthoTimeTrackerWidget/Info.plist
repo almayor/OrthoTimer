@@ -23,7 +23,7 @@
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>IntentSupported</key>
-			<string>NO</string>
+			<string>YES</string>
 			<key>WidgetFamily</key>
 			<array>
 				<string>systemSmall</string>
