@@ -21,6 +21,7 @@ public class DeviceManager: ObservableObject {
         print("CloudKit disabled in simulator - using local data only")
         #else
         cloudKitContainer = CKContainer.default()
+        print("CloudKit enabled - container initialized")
         #endif
         
         #if os(iOS)
@@ -32,8 +33,10 @@ public class DeviceManager: ObservableObject {
         
         // Use sample data only if CloudKit is not available
         if cloudKitContainer == nil {
+            print("Using sample data (CloudKit container is nil)")
             loadSampleData()
         } else {
+            print("Initializing with CloudKit data")
             fetchDevices()
         }
         
@@ -306,12 +309,34 @@ public class DeviceManager: ObservableObject {
         #endif
         
         // Real CloudKit implementation
+        print("Fetching devices from CloudKit...")
         let privateDatabase = container.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
         
         privateDatabase.perform(query, inZoneWith: nil) { [weak self] results, error in
             if let error = error {
-                print("Error fetching devices: \(error.localizedDescription)")
+                let ckError = error as? CKError
+                let errorCode = ckError?.errorCode ?? -1
+                
+                print("Error fetching devices from CloudKit:")
+                print("- Error code: \(errorCode)")
+                print("- Description: \(error.localizedDescription)")
+                
+                if let ckError = ckError {
+                    switch ckError.errorCode {
+                    case .networkUnavailable, .networkFailure:
+                        print("- Network error. Will retry on next app launch.")
+                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                        print("- CloudKit service issue. Will retry on next app launch.")
+                    case .badContainer, .incompatibleVersion, .badDatabase:
+                        print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
+                    case .permissionFailure, .notAuthenticated:
+                        print("- Authentication error. User may need to sign in to iCloud.")
+                    default:
+                        print("- Unspecified CloudKit error.")
+                    }
+                }
+                
                 DispatchQueue.main.async {
                     self?.loadSampleData() // Fall back to sample data if fetch fails
                 }
@@ -322,10 +347,12 @@ public class DeviceManager: ObservableObject {
             
             DispatchQueue.main.async {
                 if !devices.isEmpty {
+                    print("Successfully loaded \(devices.count) devices from CloudKit")
                     self?.devices = devices
                     self?.checkForMidnightTransition() // Check if we need to reset timers
                 } else {
-                    print("No devices found in CloudKit, using initial data")
+                    print("No devices found in CloudKit. This is normal for new installations.")
+                    print("Using initial sample data. New devices will be saved to CloudKit.")
                     self?.loadSampleData()
                 }
             }
@@ -355,14 +382,35 @@ public class DeviceManager: ObservableObject {
         }
         
         // Real CloudKit implementation
+        print("Saving device \(device.name) to CloudKit...")
         let privateDatabase = container.privateCloudDatabase
         let record = device.toCKRecord()
         
-        privateDatabase.save(record) { _, error in
+        privateDatabase.save(record) { savedRecord, error in
             if let error = error {
-                print("Error saving device: \(error.localizedDescription)")
+                let ckError = error as? CKError
+                let errorCode = ckError?.errorCode ?? -1
+                
+                print("Error saving device to CloudKit:")
+                print("- Error code: \(errorCode)")
+                print("- Description: \(error.localizedDescription)")
+                
+                if let ckError = ckError {
+                    switch ckError.errorCode {
+                    case .networkUnavailable, .networkFailure:
+                        print("- Network error. Data saved locally, will sync when network available.")
+                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                        print("- CloudKit service issue. Data saved locally, will retry later.")
+                    case .badContainer, .incompatibleVersion, .badDatabase:
+                        print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
+                    case .permissionFailure, .notAuthenticated:
+                        print("- Authentication error. User may need to sign in to iCloud.")
+                    default:
+                        print("- Unspecified CloudKit error.")
+                    }
+                }
             } else {
-                print("Device saved to CloudKit successfully")
+                print("Device \(device.name) saved to CloudKit successfully (Record ID: \(record.recordID.recordName))")
             }
         }
     }
@@ -381,14 +429,37 @@ public class DeviceManager: ObservableObject {
         }
         
         // Real CloudKit implementation
+        print("Deleting device \(device.name) from CloudKit...")
         let privateDatabase = container.privateCloudDatabase
         let recordID = CKRecord.ID(recordName: device.id.uuidString)
         
-        privateDatabase.delete(withRecordID: recordID) { _, error in
+        privateDatabase.delete(withRecordID: recordID) { deletedRecordID, error in
             if let error = error {
-                print("Error deleting device: \(error.localizedDescription)")
+                let ckError = error as? CKError
+                let errorCode = ckError?.errorCode ?? -1
+                
+                print("Error deleting device from CloudKit:")
+                print("- Error code: \(errorCode)")
+                print("- Description: \(error.localizedDescription)")
+                
+                if let ckError = ckError {
+                    switch ckError.errorCode {
+                    case .networkUnavailable, .networkFailure:
+                        print("- Network error. Will retry when network available.")
+                    case .unknownItem:
+                        print("- Device not found in CloudKit. This is normal if it was never saved.")
+                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                        print("- CloudKit service issue. Will retry later.")
+                    case .badContainer, .incompatibleVersion, .badDatabase:
+                        print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
+                    case .permissionFailure, .notAuthenticated:
+                        print("- Authentication error. User may need to sign in to iCloud.")
+                    default:
+                        print("- Unspecified CloudKit error.")
+                    }
+                }
             } else {
-                print("Device deleted from CloudKit successfully")
+                print("Device \(device.name) deleted from CloudKit successfully")
             }
         }
     }

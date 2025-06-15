@@ -96,16 +96,55 @@ struct Provider: TimelineProvider {
         let privateDB = container.privateCloudDatabase
         let query = CKQuery(recordType: "Device", predicate: NSPredicate(value: true))
         
-        privateDB.perform(query, inZoneWith: nil) { results, error in
+        // Add an operation timeout to ensure widget doesn't hang
+        let operation = CKQueryOperation(query: query)
+        operation.qualityOfService = .userInteractive  // High priority for widget
+        operation.resultsLimit = 10  // Limit for performance
+        
+        var fetchedDevices: [OTTDevice] = []
+        
+        operation.recordFetchedBlock = { record in
+            if let device = OTTDevice.fromCKRecord(record) {
+                fetchedDevices.append(device)
+            }
+        }
+        
+        operation.queryCompletionBlock = { cursor, error in
             if let error = error {
-                print("Error fetching widget data: \(error.localizedDescription)")
+                let ckError = error as? CKError
+                let errorCode = ckError?.errorCode ?? -1
+                
+                print("Widget error fetching devices from CloudKit:")
+                print("- Error code: \(errorCode)")
+                print("- Description: \(error.localizedDescription)")
+                
+                // For widgets, always fall back gracefully to avoid blank widgets
                 completion([])
                 return
             }
             
-            let devices = results?.compactMap { OTTDevice.fromCKRecord($0) } ?? []
-            completion(devices)
+            if fetchedDevices.isEmpty {
+                print("Widget found no devices in CloudKit")
+                // Return a sample device for better user experience
+                completion([self.sampleDevice()])
+            } else {
+                print("Widget successfully loaded \(fetchedDevices.count) devices from CloudKit")
+                completion(fetchedDevices)
+            }
         }
+        
+        // Use a 5-second timeout for widget operations
+        DispatchQueue.global().asyncAfter(deadline: .now() + 5) {
+            operation.cancel()
+            if fetchedDevices.isEmpty {
+                print("Widget CloudKit operation timed out, using sample data")
+                DispatchQueue.main.async {
+                    completion([self.sampleDevice()])
+                }
+            }
+        }
+        
+        privateDB.add(operation)
     }
 }
 
