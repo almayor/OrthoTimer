@@ -2,19 +2,24 @@ import WidgetKit
 import SwiftUI
 import CloudKit
 import OrthoTimeTrackerCore
-import Intents
 
-struct Provider: IntentTimelineProvider {
+// Simple widget configuration structure that doesn't require custom intents
+struct DeviceConfiguration {
+    // The ID of the selected device, or nil for all devices
+    var selectedDeviceId: String?
+}
+
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: SelectDeviceIntent())
+        SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: DeviceConfiguration())
     }
 
-    func getSnapshot(for configuration: SelectDeviceIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: configuration)
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        let entry = SimpleEntry(date: Date(), devices: [sampleDevice()], relevance: nil, configuration: DeviceConfiguration())
         completion(entry)
     }
 
-    func getTimeline(for configuration: SelectDeviceIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         #if targetEnvironment(simulator)
         // For simulator testing, use sample data
         let devices = [sampleDevice()]
@@ -22,7 +27,7 @@ struct Provider: IntentTimelineProvider {
         let entries = createTimelineEntries(
             startDate: currentDate,
             devices: devices,
-            configuration: configuration
+            configuration: DeviceConfiguration()
         )
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
@@ -37,7 +42,7 @@ struct Provider: IntentTimelineProvider {
             let entries = self.createTimelineEntries(
                 startDate: currentDate,
                 devices: devices,
-                configuration: configuration
+                configuration: DeviceConfiguration()
             )
             let timeline = Timeline(entries: entries, policy: .after(Date().addingTimeInterval(5 * 60))) // Update every 5 minutes
             
@@ -58,7 +63,7 @@ struct Provider: IntentTimelineProvider {
     private func createTimelineEntries(
         startDate: Date,
         devices: [OTTDevice],
-        configuration: SelectDeviceIntent
+        configuration: DeviceConfiguration
     ) -> [SimpleEntry] {
         var entries: [SimpleEntry] = []
         let calendar = Calendar.current
@@ -81,14 +86,8 @@ struct Provider: IntentTimelineProvider {
             // Create widget relevance score based on active device
             var relevance: TimelineEntryRelevance? = nil
             
-            // If user has selected a specific device and it's running, boost relevance
-            if let deviceId = configuration.deviceId?.deviceId,
-               let selectedDevice = updatedDevices.first(where: { $0.id.uuidString == deviceId }),
-               selectedDevice.isRunning {
-                relevance = TimelineEntryRelevance(score: 100)
-            } 
-            // Otherwise if any device is running, give standard relevance
-            else if let activeDevice = updatedDevices.first(where: { $0.isRunning }) {
+            // If any device is running, give standard relevance
+            if let activeDevice = updatedDevices.first(where: { $0.isRunning }) {
                 relevance = TimelineEntryRelevance(score: 90)
             }
             
@@ -165,19 +164,15 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
     let devices: [OTTDevice]
     let relevance: TimelineEntryRelevance?
-    let configuration: SelectDeviceIntent
+    let configuration: DeviceConfiguration
     
+    // For now, we'll just return the first device as the selected one
     var selectedDevice: OTTDevice? {
-        if let deviceId = configuration.deviceId?.deviceId {
-            return devices.first { $0.id.uuidString == deviceId }
-        }
         return devices.first
     }
     
+    // Return all devices for now
     var filteredDevices: [OTTDevice] {
-        if let selectedDevice = selectedDevice {
-            return [selectedDevice]
-        }
         return devices
     }
 }
@@ -361,9 +356,8 @@ struct OrthoTimerWidget: Widget {
     let kind: String = "OrthoTimerWidget"
 
     var body: some WidgetConfiguration {
-        IntentConfiguration(
+        StaticConfiguration(
             kind: kind,
-            intent: SelectDeviceIntent.self,
             provider: Provider()
         ) { entry in
             if #available(iOS 17.0, *) {

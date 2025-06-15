@@ -18,21 +18,21 @@
     <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
-	<key>NSExtension</key>
-	<dict>
-		<key>NSExtensionAttributes</key>
-		<dict>
-			<key>IntentSupported</key>
-			<string>YES</string>
-			<key>WidgetFamily</key>
-			<array>
-				<string>systemSmall</string>
-				<string>systemMedium</string>
-				<string>systemLarge</string>
-			</array>
-		</dict>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.widgetkit-extension</string>
-	</dict>
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionAttributes</key>
+        <dict>
+            <key>IntentSupported</key>
+            <string>NO</string>
+            <key>WidgetFamily</key>
+            <array>
+                <string>systemSmall</string>
+                <string>systemMedium</string>
+                <string>systemLarge</string>
+            </array>
+        </dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.widgetkit-extension</string>
+    </dict>
 </dict>
 </plist>
