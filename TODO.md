@@ -67,11 +67,13 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 
 ## CloudKit Integration
 
+- [x] Complete Apple Developer Program enrollment
 - [x] Enable CloudKit in entitlements files
 - [x] Implement CloudKit model serialization (toCKRecord and fromCKRecord)
 - [x] Add conditional compilation for simulator vs real device
-- [ ] **HIGH PRIORITY**: Complete Apple Developer Program enrollment for production CloudKit access
-- [ ] Test CloudKit operations on real devices after enrollment approval
+- [ ] **HIGH PRIORITY**: Fix CloudKit synchronization on real devices
+- [ ] Verify CloudKit container configuration in Apple Developer portal
+- [ ] Test and debug CloudKit operations on real devices
 - [ ] Implement proper error handling for CloudKit operations
 - [ ] Add conflict resolution for simultaneous edits
 - [ ] Create sync status indicators
