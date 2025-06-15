@@ -324,13 +324,13 @@ public class DeviceManager: ObservableObject {
                 
                 if let ckError = ckError {
                     switch ckError.errorCode {
-                    case .networkUnavailable, .networkFailure:
+                    case CKError.Code.networkUnavailable.rawValue, CKError.Code.networkFailure.rawValue:
                         print("- Network error. Will retry on next app launch.")
-                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                    case CKError.Code.serviceUnavailable.rawValue, CKError.Code.requestRateLimited.rawValue:
                         print("- CloudKit service issue. Will retry on next app launch.")
-                    case .badContainer, .incompatibleVersion, .badDatabase:
+                    case CKError.Code.badContainer.rawValue, CKError.Code.incompatibleVersion.rawValue, CKError.Code.badDatabase.rawValue:
                         print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
-                    case .permissionFailure, .notAuthenticated:
+                    case CKError.Code.permissionFailure.rawValue, CKError.Code.notAuthenticated.rawValue:
                         print("- Authentication error. User may need to sign in to iCloud.")
                     default:
                         print("- Unspecified CloudKit error.")
@@ -397,13 +397,13 @@ public class DeviceManager: ObservableObject {
                 
                 if let ckError = ckError {
                     switch ckError.errorCode {
-                    case .networkUnavailable, .networkFailure:
+                    case CKError.Code.networkUnavailable.rawValue, CKError.Code.networkFailure.rawValue:
                         print("- Network error. Data saved locally, will sync when network available.")
-                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                    case CKError.Code.serviceUnavailable.rawValue, CKError.Code.requestRateLimited.rawValue:
                         print("- CloudKit service issue. Data saved locally, will retry later.")
-                    case .badContainer, .incompatibleVersion, .badDatabase:
+                    case CKError.Code.badContainer.rawValue, CKError.Code.incompatibleVersion.rawValue, CKError.Code.badDatabase.rawValue:
                         print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
-                    case .permissionFailure, .notAuthenticated:
+                    case CKError.Code.permissionFailure.rawValue, CKError.Code.notAuthenticated.rawValue:
                         print("- Authentication error. User may need to sign in to iCloud.")
                     default:
                         print("- Unspecified CloudKit error.")
@@ -444,15 +444,15 @@ public class DeviceManager: ObservableObject {
                 
                 if let ckError = ckError {
                     switch ckError.errorCode {
-                    case .networkUnavailable, .networkFailure:
+                    case CKError.Code.networkUnavailable.rawValue, CKError.Code.networkFailure.rawValue:
                         print("- Network error. Will retry when network available.")
-                    case .unknownItem:
+                    case CKError.Code.unknownItem.rawValue:
                         print("- Device not found in CloudKit. This is normal if it was never saved.")
-                    case .serverResponseLost, .serviceUnavailable, .requestRateLimited:
+                    case CKError.Code.serviceUnavailable.rawValue, CKError.Code.requestRateLimited.rawValue:
                         print("- CloudKit service issue. Will retry later.")
-                    case .badContainer, .incompatibleVersion, .badDatabase:
+                    case CKError.Code.badContainer.rawValue, CKError.Code.incompatibleVersion.rawValue, CKError.Code.badDatabase.rawValue:
                         print("- CloudKit configuration issue. Check entitlements and Apple Developer portal.")
-                    case .permissionFailure, .notAuthenticated:
+                    case CKError.Code.permissionFailure.rawValue, CKError.Code.notAuthenticated.rawValue:
                         print("- Authentication error. User may need to sign in to iCloud.")
                     default:
                         print("- Unspecified CloudKit error.")
