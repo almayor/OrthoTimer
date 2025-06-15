@@ -30,9 +30,11 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
   - [ ] App appearance options
   - [ ] Reset data options
 - [ ] Implement device categories (retainers, aligners, elastics, etc.)
-- [ ] Add statistics visualization with charts/graphs
+- [x] Add statistics visualization with basic charts for weekly/monthly tracking
+- [ ] Enhance statistics with more detailed charts and analysis
 - [ ] Create weekly/monthly goals for device wear time
-- [ ] Add reminders with custom schedules
+- [x] Implement automatic notifications (not wearing for 3+ hours, wearing too long)
+- [ ] Add custom reminder schedules
 - [x] Implement data export/backup functionality (currently CSV export for device data)
 - [ ] Allow photo attachments for each device
 
@@ -65,9 +67,11 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 
 ## CloudKit Integration
 
-- [ ] **HIGH PRIORITY**: Re-enable CloudKit after Apple Developer Program enrollment is approved
-- [ ] Update conditional compilation to enable CloudKit on both iOS and macOS
-- [ ] Configure CloudKit containers and entitlements properly
+- [x] Enable CloudKit in entitlements files
+- [x] Implement CloudKit model serialization (toCKRecord and fromCKRecord)
+- [x] Add conditional compilation for simulator vs real device
+- [ ] **HIGH PRIORITY**: Complete Apple Developer Program enrollment for production CloudKit access
+- [ ] Test CloudKit operations on real devices after enrollment approval
 - [ ] Implement proper error handling for CloudKit operations
 - [ ] Add conflict resolution for simultaneous edits
 - [ ] Create sync status indicators
