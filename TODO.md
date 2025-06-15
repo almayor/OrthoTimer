@@ -2,6 +2,17 @@
 
 This file tracks planned features and improvements for the OrthoTimeTracker app. These can be implemented while waiting for Apple Developer Program enrollment or as future updates.
 
+## Widget Improvements
+
+- [x] Fix widget installation error by removing NSExtensionPrincipalClass from Info.plist
+- [x] Improve widget appearance with proper corner radius and styling
+- [x] Add responsive font sizing for better readability on all widget sizes
+- [x] Fix URL scheme handling for widget interactions
+- [ ] Implement widget configuration for selecting specific devices
+- [ ] Create different widget designs for different information displays
+- [ ] Add widget family support for accessory circular and inline widgets
+- [ ] Support Lock Screen widgets for iOS 16+
+
 ## UI/UX Enhancements
 
 - [ ] Add animations and transitions for a more polished feel
@@ -22,7 +33,7 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 - [ ] Add statistics visualization with charts/graphs
 - [ ] Create weekly/monthly goals for device wear time
 - [ ] Add reminders with custom schedules
-- [ ] Implement data export/backup functionality
+- [x] Implement data export/backup functionality (currently CSV export for device data)
 - [ ] Allow photo attachments for each device
 
 ## macOS Improvements
@@ -69,7 +80,6 @@ This file tracks planned features and improvements for the OrthoTimeTracker app.
 - [ ] Add reminders via Siri Shortcuts
 - [ ] Implement a journal feature for orthodontic treatment notes
 - [ ] Add appointment tracking with calendar integration
-- [ ] Create a widget for the Lock Screen (iOS 16+)
 - [ ] Add support for multiple user profiles (family sharing)
 
 ---
